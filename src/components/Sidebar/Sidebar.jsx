@@ -1,99 +1,89 @@
 import { NavLink } from 'react-router-dom'
-import {
-  Home, Target, Gift, User, Shield,
-  LogOut, Sun, Moon,
-} from 'lucide-react'
+import { Home, CheckCircle, BookOpen, ShieldAlert, Link2, User, Moon, Sun, LogOut } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
+import { useAuth }  from '../../context/AuthContext'
 
-/*
- * NAV_LINKS — array de objetos com os dados de cada item de navegação.
- * Icone é um componente React do lucide-react (uppercase = convenção React).
- * Assim, o JSX abaixo pode chamar <Icone /> dinamicamente.
- */
-const NAV_LINKS = [
-  { to: '/',            label: 'Início',      Icone: Home,   end: true  },
-  { to: '/missoes',     label: 'Missões',     Icone: Target, end: false },
-  { to: '/catalogo',    label: 'Catálogo',    Icone: Gift,   end: false },
-  { to: '/perfil',      label: 'Perfil',      Icone: User,   end: false },
-  { to: '/privacidade', label: 'Privacidade', Icone: Shield, end: false },
+const LINKS = [
+  { to: '/',          label: 'Dashboard',     Icon: Home,        end: true },
+  { to: '/missoes',   label: 'Missões',       Icon: CheckCircle, end: false },
+  { to: '/chronicle', label: 'Chronicle',     Icon: BookOpen,    end: false },
+  { to: '/sentinel',  label: 'SENTINEL',      Icon: ShieldAlert, end: false },
+  { to: '/chains',    label: 'Health Chains', Icon: Link2,       end: false },
+  { to: '/perfil',    label: 'Perfil',        Icon: User,        end: false },
 ]
 
-/*
- * Sidebar — barra lateral flutuante com glassmorphism.
- *
- * Props:
- *   usuario → { nome, pontos }
- *   onSair  → callback para deslogar
- *
- * O tema (claro/escuro) vem do ThemeContext, sem precisar de props extras.
- */
-export default function Sidebar({ usuario, onSair }) {
-  const { nome, pontos } = usuario
-  const { tema, alternarTema } = useTheme()  // lê o contexto de tema
-  const escuro = tema === 'dark'
+export default function Sidebar({ mobileOpen, onClose }) {
+  const { tema, alternarTema } = useTheme()
+  const { usuario, logout }    = useAuth()
+
+  const linkClass = ({ isActive }) =>
+    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+      isActive
+        ? 'bg-cp-teal/15 text-cp-teal'
+        : 'text-white/50 hover:text-white hover:bg-white/5'
+    }`
 
   return (
-    <aside className="cp-sidebar">
-      {/* ── Logo ── */}
-      <div className="cp-sidebar__logo">
-        <span className="cp-sidebar__logo-text">
-          Care<em>Plus+</em>
-        </span>
-      </div>
+    <>
+      {/* Overlay mobile */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
-      {/* ── Navegação ── */}
-      <nav className="cp-sidebar__nav">
-        {NAV_LINKS.map(({ to, label, Icone, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) => `cp-nav-link${isActive ? ' active' : ''}`}
-          >
-            {/*
-             * strokeWidth={1.75} → traço fino, estilo "linha fina" pedido no design.
-             * Icons do lucide aceitam size e strokeWidth como props.
-             */}
-            <Icone size={17} strokeWidth={1.75} />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-      </nav>
+      <aside
+        className={`
+          fixed top-3 left-3 bottom-3 z-40
+          w-56 rounded-2xl
+          bg-[rgba(7,15,35,0.91)] border border-white/7
+          backdrop-blur-xl
+          flex flex-col
+          transition-transform duration-300
+          ${mobileOpen ? 'translate-x-0' : '-translate-x-[calc(100%+12px)]'}
+          lg:translate-x-0
+        `}
+      >
+        {/* Logo */}
+        <div className="px-5 pt-5 pb-4 border-b border-white/7">
+          <span className="font-sora text-base font-extrabold text-white tracking-tight">
+            Care<span className="text-cp-teal">Plus+</span>
+          </span>
+          {usuario && (
+            <p className="text-xs text-white/40 mt-0.5 truncate">{usuario.first_name || usuario.username}</p>
+          )}
+        </div>
 
-      {/* ── Footer ── */}
-      <div className="cp-sidebar__footer">
-        {/* Alternador de tema — lê/escreve via Context API */}
-        <button
-          className="cp-theme-toggle"
-          onClick={alternarTema}
-          aria-label="Alternar tema"
-        >
-          {escuro
-            ? <Sun  size={15} strokeWidth={2} />
-            : <Moon size={15} strokeWidth={2} />
-          }
-          <span>{escuro ? 'Tema claro' : 'Tema escuro'}</span>
-        </button>
+        {/* Links */}
+        <nav className="flex-1 px-3 py-4 space-y-0.5 sidebar-scroll overflow-y-auto" aria-label="Navegação principal">
+          {LINKS.map(({ to, label, Icon, end }) => (
+            <NavLink key={to} to={to} end={end} className={linkClass} onClick={onClose}>
+              <Icon size={16} strokeWidth={2} />
+              {label}
+            </NavLink>
+          ))}
+        </nav>
 
-        {/* User card com botão de logout */}
-        <div className="cp-user-card">
-          <div className="cp-user-card__avatar">
-            {nome.charAt(0).toUpperCase()}
-          </div>
-          <div className="cp-user-card__info">
-            <span className="cp-user-card__name">{nome}</span>
-            <span className="cp-user-card__pts">{pontos} pts</span>
-          </div>
+        {/* Footer */}
+        <div className="px-3 pb-4 space-y-1 border-t border-white/7 pt-3">
           <button
-            className="cp-user-card__logout"
-            onClick={onSair}
-            title="Sair da conta"
-            aria-label="Sair"
+            onClick={alternarTema}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition-all w-full"
           >
-            <LogOut size={15} strokeWidth={2} />
+            {tema === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            {tema === 'dark' ? 'Modo claro' : 'Modo escuro'}
+          </button>
+          <button
+            onClick={logout}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/50 hover:text-red-400 hover:bg-red-500/5 transition-all w-full"
+          >
+            <LogOut size={16} />
+            Sair
           </button>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   )
 }
