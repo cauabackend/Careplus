@@ -271,7 +271,67 @@ Perfil          (ícone: User)
 
 ---
 
-## 8. Requisitos de Entrega Atendidos
+## 8. Sistema do Panda Mascote
+
+O panda é a **interface emocional central** do app — não é decoração. Ele aparece em todas as páginas, em posições e estados diferentes, e reage a dois eixos simultaneamente: o estado de saúde do usuário e o contexto da página atual.
+
+### Eixo 1 — Estado de saúde (Vitals Weather)
+Herdado diretamente do score do dia. Define a paleta de rim light e as expressões base:
+
+| Estado | `--accent` | Expressão | Animação |
+|---|---|---|---|
+| `excellent` | `#37C3FF` ciano | Olhos abertos, sorriso | Float suave (−14px) |
+| `good` | `#2DD75F` verde | Olhos abertos, neutro | Float suave |
+| `warning` | `#FFA023` âmbar | Pálpebras meio fechadas | Respirar (scale 1.025) |
+| `critical` | `#FF3A3A` vermelho | Pálpebras fechadas + zzz | Estático |
+
+### Eixo 2 — Contexto da página
+Cada página define a **posição**, **tamanho** e **pose** do panda:
+
+| Página | Posição | Tamanho | Comportamento especial |
+|---|---|---|---|
+| **Dashboard** | Centro/hero, acima das estatísticas | Grande (270px) | Pose principal — reage ao score do dia |
+| **Missões** | Canto superior direito | Médio (160px) | Fica animado ao completar uma missão (jump) |
+| **The Chronicle** | Lateral, "lendo" o livro | Médio (160px) | Olha para o lado onde o livro está aberto |
+| **SENTINEL** | Canto, postura alerta | Pequeno (120px) | Expressão preocupada se há alertas ativos |
+| **Health Chains** | Centro, acenando | Médio (160px) | Acena quando amigo completa uma missão |
+| **Perfil** | Canto inferior, descansando | Pequeno (120px) | Pose relaxada, neutro |
+
+### Implementação como componente React
+
+```jsx
+// src/components/PandaMascot/PandaMascot.jsx
+// Props:
+//   healthState: 'excellent' | 'good' | 'warning' | 'critical'
+//   pageContext: 'dashboard' | 'missoes' | 'chronicle' | 'sentinel' | 'chains' | 'perfil'
+//   event?: 'mission_complete' | 'friend_helped' | 'alert_triggered'
+//   size?: 'sm' (120px) | 'md' (160px) | 'lg' (270px)
+
+<PandaMascot
+  healthState={vitalsState}
+  pageContext="missoes"
+  event={missionJustCompleted ? 'mission_complete' : null}
+  size="md"
+/>
+```
+
+O SVG do panda (desenvolvido em `panda-cute.html`) é extraído como componente React puro. As CSS variables `--accent`, `--bg-a`, `--bg-b` são passadas via `style` prop e respondem ao `healthState`.
+
+### Eventos e animações pontuais
+
+Além das animações contínuas (float, breathe, zzz), o panda reage a **eventos** com animações de um disparo:
+
+| Evento | Animação | Duração |
+|---|---|---|
+| Missão concluída | Pulo (`translateY -30px → 0`) | 0.6s |
+| Badge conquistada | Giro (`rotate 360deg`) | 0.8s |
+| Amigo ajudado (Chains) | Aceno (braço sobe/desce) | 1s |
+| Alerta SENTINEL | Tremida leve (`shake`) | 0.5s |
+| Login/abertura do app | Entrada (`scale 0 → 1 + bounce`) | 1s |
+
+---
+
+## 9. Requisitos de Entrega Atendidos
 
 ### Computational Thinking with Python
 - [x] Validações com `try-except` em todos os views Django
@@ -309,7 +369,7 @@ CORS configurado em `settings.py` para aceitar `localhost:5173`.
 
 ---
 
-## 10. Fora de Escopo (V2)
+## 11. Fora de Escopo (V2)
 
 - Health Chains em múltiplos níveis (A→B→C→D)
 - Background jobs (Celery) para SENTINEL
