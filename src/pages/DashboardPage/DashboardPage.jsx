@@ -1,86 +1,102 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Star, Zap, Award, CheckCircle2 } from 'lucide-react'
-import StatCard from '../../components/StatCard/StatCard'
-import MissionCard from '../../components/MissionCard/MissionCard'
+import { useAuth }     from '../../context/AuthContext'
+import { api }         from '../../services/api'
+import StatCard        from '../../components/StatCard/StatCard'
+import MissionCard     from '../../components/MissionCard/MissionCard'
 import { METAS, PONTOS_POR_MISSAO, MISSOES_CONFIG } from '../../data/constants'
 
-export default function DashboardPage({ usuario }) {
-  const { nome, pontos, streak, badges, missoes_concluidas, dados } = usuario
+export default function DashboardPage() {
+  const { usuario, refreshUsuario } = useAuth()
+  const [progresso, setProgresso]   = useState(null)
+  const [missoes,   setMissoes]     = useState([])
 
   const hoje = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long', day: 'numeric', month: 'long',
   })
 
+  useEffect(() => {
+    api.getProgresso().then(setProgresso).catch(() => {})
+    api.getMissoes().then(setMissoes).catch(() => {})
+    refreshUsuario()
+  }, [refreshUsuario])
+
+  if (!usuario) return null
+
+  const dados           = progresso ?? { passos: 0, agua: 0, sono: 0 }
+  const missoesConcluidas = missoes.map(m => m.chave_missao)
+
   return (
     <div>
-      <header className="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+      <header className="flex justify-between items-start mb-6 flex-wrap gap-2">
         <div>
-          <div className="cp-page-label">Início</div>
-          <h1 className="cp-page-title">Olá, {nome}</h1>
-          <p style={{ color: 'var(--cp-muted)', fontSize: '0.875rem', marginTop: '4px', textTransform: 'capitalize', transition: 'color .35s' }}>
-            {hoje}
-          </p>
+          <div className="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-muted dark:text-d-muted">Início</div>
+          <h1 className="font-sora text-2xl font-extrabold text-text dark:text-d-text mt-0.5">
+            Olá, {usuario.first_name || usuario.username}
+          </h1>
+          <p className="text-sm text-muted dark:text-d-muted mt-0.5 capitalize">{hoje}</p>
         </div>
       </header>
 
       {/* Estatísticas */}
-      <section aria-label="Estatísticas do usuário">
-        <div className="cp-grid cp-grid--stats mb-4">
-          <StatCard label="Pontos"         valor={pontos}                                    Icone={Star}         invertido />
-          <StatCard label="Streak"         valor={`${streak} dia${streak !== 1 ? 's' : ''}`} Icone={Zap}          cor="var(--cp-orange)" />
-          <StatCard label="Badges"         valor={badges.length}                              Icone={Award}        cor="var(--cp-gold)" />
-          <StatCard label="Missões Feitas" valor={missoes_concluidas.length}                  Icone={CheckCircle2} cor="var(--cp-success)" />
-        </div>
+      <section aria-label="Estatísticas do usuário" className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <StatCard label="Pontos"         valor={usuario.pontos}                                         Icone={Star}         invertido />
+        <StatCard label="Streak"         valor={`${usuario.streak}d`}                                   Icone={Zap}          cor="#F97316" />
+        <StatCard label="Badges"         valor={usuario.badges_count ?? '—'}                            Icone={Award}        cor="#F59E0B" />
+        <StatCard label="Missões"        valor={missoesConcluidas.length}                               Icone={CheckCircle2} cor="#10B981" />
       </section>
 
       {/* Missões do dia */}
-      <section aria-labelledby="dash-missoes-title" className="cp-card mb-4">
-        <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <section aria-labelledby="dash-missoes-title" className="bg-card dark:bg-d-card border border-border dark:border-d-border rounded-2xl p-5 mb-4">
+        <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
           <div>
-            <div className="cp-page-label">Hoje</div>
-            <h2 id="dash-missoes-title" style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--cp-text)', margin: 0, transition: 'color .35s' }}>
+            <div className="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-muted dark:text-d-muted">Hoje</div>
+            <h2 id="dash-missoes-title" className="font-sora text-base font-bold text-text dark:text-d-text mt-0.5">
               Missões do Dia
             </h2>
           </div>
-          <Link to="/missoes" className="btn-cp btn-cp--teal btn-cp--sm">
+          <Link
+            to="/missoes"
+            className="bg-cp-teal hover:bg-[#00a8c4] text-white text-xs font-semibold rounded-full px-4 py-2 transition-colors"
+          >
             Atualizar progresso
           </Link>
         </div>
 
-        <div className="cp-grid cp-grid--missions">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {MISSOES_CONFIG.map(({ chave, titulo, Icone, unidade, cor }) => (
             <MissionCard
               key={chave}
               titulo={titulo}
               Icone={Icone}
               meta={METAS[chave]}
-              atual={dados[chave]}
+              atual={dados[chave] ?? 0}
               unidade={unidade}
               pontos={PONTOS_POR_MISSAO[chave]}
-              concluida={missoes_concluidas.includes(chave)}
+              concluida={missoesConcluidas.includes(chave)}
               cor={cor}
             />
           ))}
         </div>
       </section>
 
-      {/* Banner catálogo */}
-      <aside className="cp-card" style={{ background: 'linear-gradient(135deg, var(--cp-navy) 0%, #071840 100%)', border: 'none' }}>
-        <div className="row align-items-center gy-3">
-          <div className="col">
-            <div style={{ color: 'rgba(255,255,255,.5)', fontSize: '0.62rem', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase' }}>
-              Catálogo
-            </div>
-            <h2 style={{ color: '#fff', fontWeight: 700, fontSize: '1.05rem', margin: '4px 0', fontFamily: "'Sora', sans-serif" }}>
-              Troque seus pontos por recompensas
+      {/* Banner SENTINEL */}
+      <aside className="bg-cp-navy rounded-2xl p-5">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <div className="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-white/40">SENTINEL</div>
+            <h2 className="font-sora text-base font-bold text-white mt-0.5">
+              Monitore seus padrões de saúde
             </h2>
-            <p style={{ color: 'rgba(255,255,255,.5)', fontSize: '0.875rem', margin: 0 }}>
-              Saldo disponível: <strong style={{ color: '#fff' }}>{pontos} pts</strong>
-            </p>
+            <p className="text-sm text-white/50 mt-0.5">Alertas inteligentes antes do problema aparecer</p>
           </div>
-          <div className="col-auto">
-            <Link to="/catalogo" className="btn-cp btn-cp--teal">Ver Catálogo</Link>
-          </div>
+          <Link
+            to="/sentinel"
+            className="bg-cp-teal hover:bg-[#00a8c4] text-white text-xs font-semibold rounded-full px-4 py-2 transition-colors"
+          >
+            Ver alertas
+          </Link>
         </div>
       </aside>
     </div>

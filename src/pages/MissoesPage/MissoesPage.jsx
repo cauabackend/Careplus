@@ -1,155 +1,132 @@
 import { useState, useEffect } from 'react'
 import { HeartPulse, RefreshCw } from 'lucide-react'
-import MissionCard from '../../components/MissionCard/MissionCard'
+import { useAuth }    from '../../context/AuthContext'
+import { api }        from '../../services/api'
+import MissionCard    from '../../components/MissionCard/MissionCard'
 import { METAS, PONTOS_POR_MISSAO, MISSOES_CONFIG } from '../../data/constants'
-import { buscarDadosSaude } from '../../services/mockHealthApi'
 
-const CHAVE_SYNC = 'careplus_ultimo_sync'
+export default function MissoesPage() {
+  const { refreshUsuario }        = useAuth()
+  const [sincronizando, setSinc]  = useState(false)
+  const [progresso,    setProg]   = useState(null)
+  const [missoes,      setMissoes]= useState([])
+  const [mensagem,     setMsg]    = useState(null)
 
-export default function MissoesPage({ usuario, setUsuario }) {
-  const [sincronizando, setSincronizando] = useState(false)
-  const [ultimoSync, setUltimoSync]       = useState(null)
-  const [mensagem, setMensagem]           = useState(null)
+  async function carregarDados() {
+    const [prog, miss] = await Promise.all([api.getProgresso(), api.getMissoes()])
+    setProg(prog)
+    setMissoes(miss)
+  }
 
-  // Recupera o último sync do localStorage ao montar o componente
-  useEffect(() => {
-    const salvo = localStorage.getItem(CHAVE_SYNC)
-    if (salvo) setUltimoSync(JSON.parse(salvo))
-  }, [])
+  useEffect(() => { carregarDados() }, [])
 
   async function sincronizar() {
-    setSincronizando(true)
-    setMensagem(null)
+    setSinc(true)
+    setMsg(null)
     try {
+      // Simula busca do Google Health (mock)
+      const { buscarDadosSaude } = await import('../../services/mockHealthApi')
       const dados = await buscarDadosSaude()
-      localStorage.setItem(CHAVE_SYNC, JSON.stringify(dados))
-      setUltimoSync(dados)
+      await api.salvarProgresso({ passos: dados.passos, agua: dados.agua, sono: dados.sono, fonte: dados.fonte })
+      await carregarDados()
+      setMsg({ tipo: 'success', texto: 'Dados sincronizados com sucesso!' })
+    } catch {
+      setMsg({ tipo: 'error', texto: 'Erro ao sincronizar. Tente novamente.' })
     } finally {
-      setSincronizando(false)
+      setSinc(false)
     }
   }
 
-  function salvarProgresso() {
-    if (!ultimoSync) return
-
-    let pontosGanhos = 0
-    const novasMissoes = [...usuario.missoes_concluidas]
-    const novasBadges  = [...usuario.badges]
-
-    MISSOES_CONFIG.forEach(({ chave, badge }) => {
-      const bateuMeta      = ultimoSync[chave] >= METAS[chave]
-      const jaContabilizou = novasMissoes.includes(chave)
-
-      if (bateuMeta && !jaContabilizou) {
-        pontosGanhos += PONTOS_POR_MISSAO[chave]
-        novasMissoes.push(chave)
-        if (!novasBadges.includes(badge))             novasBadges.push(badge)
-        if (!novasBadges.includes('primeira_missao')) novasBadges.push('primeira_missao')
-      }
-    })
-
-    setUsuario({
-      ...usuario,
-      dados:              { passos: ultimoSync.passos, agua: ultimoSync.agua, sono: ultimoSync.sono },
-      pontos:             usuario.pontos + pontosGanhos,
-      streak:             pontosGanhos > 0 ? usuario.streak + 1 : usuario.streak,
-      missoes_concluidas: novasMissoes,
-      badges:             novasBadges,
-    })
-
-    setMensagem(
-      pontosGanhos > 0
-        ? { tipo: 'success', texto: `+${pontosGanhos} pts conquistados! Continue assim.` }
-        : { tipo: 'info',    texto: 'Progresso salvo. Continue batendo suas metas.' }
-    )
+  async function concluirMissao(chave) {
+    try {
+      await api.concluirMissao({ chave_missao: chave })
+      await carregarDados()
+      await refreshUsuario()
+      setMsg({ tipo: 'success', texto: `Missão "${chave}" concluída! Pontos adicionados.` })
+    } catch (err) {
+      setMsg({ tipo: 'error', texto: err.data?.erro || 'Erro ao concluir missão.' })
+    }
   }
 
-  function formatarHora(iso) {
-    return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-  }
+  const dados           = progresso ?? { passos: 0, agua: 0, sono: 0 }
+  const missoesConcluidas = missoes.map(m => m.chave_missao)
 
   return (
     <div>
-      <header className="mb-4">
-        <div className="cp-page-label">Hoje</div>
-        <h1 className="cp-page-title">Missões do Dia</h1>
-        <p style={{ color: 'var(--cp-muted)', fontSize: '0.875rem', marginTop: '4px', transition: 'color .35s' }}>
-          Sincronize com o Google Health para importar seus dados automaticamente.
+      <header className="mb-6">
+        <div className="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-muted dark:text-d-muted">Hoje</div>
+        <h1 className="font-sora text-2xl font-extrabold text-text dark:text-d-text mt-0.5">Missões do Dia</h1>
+        <p className="text-sm text-muted dark:text-d-muted mt-1">
+          Sincronize com o Google Health para importar seus dados.
         </p>
       </header>
 
-      {/* Barra de sincronização */}
-      <div className="cp-sync-bar">
+      {/* Barra de sync */}
+      <div className="bg-card dark:bg-d-card border border-border dark:border-d-border rounded-2xl p-4 flex items-center gap-3 mb-4">
         {sincronizando
-          ? <div className="cp-sync-spinner" />
-          : <HeartPulse size={20} strokeWidth={1.75} className="cp-sync-bar__icon" />
+          ? <div className="w-5 h-5 rounded-full border-2 border-cp-teal border-t-transparent animate-spin flex-shrink-0" />
+          : <HeartPulse size={20} strokeWidth={1.75} className="text-cp-teal flex-shrink-0" />
         }
-        <div className="cp-sync-bar__text">
-          <div className="cp-sync-bar__label">
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-text dark:text-d-text">
             {sincronizando ? 'Sincronizando…' : 'Google Health'}
           </div>
-          <div className="cp-sync-bar__source">
-            {ultimoSync
-              ? `Último sync: ${ultimoSync.fonte}`
-              : 'Nenhuma sincronização realizada hoje'
-            }
+          <div className="text-xs text-muted dark:text-d-muted truncate">
+            {progresso ? `Sync realizado — ${dados.passos.toLocaleString('pt-BR')} passos` : 'Nenhuma sincronização hoje'}
           </div>
         </div>
-        {ultimoSync && !sincronizando && (
-          <span className="cp-sync-bar__time">{formatarHora(ultimoSync.dataSync)}</span>
-        )}
         <button
-          className="btn-cp btn-cp--teal btn-cp--sm"
           onClick={sincronizar}
           disabled={sincronizando}
+          className="flex items-center gap-1.5 bg-cp-teal hover:bg-[#00a8c4] disabled:opacity-60 text-white text-xs font-semibold rounded-full px-4 py-2 transition-colors flex-shrink-0"
         >
-          {sincronizando
-            ? 'Aguarde…'
-            : <><RefreshCw size={14} strokeWidth={2} /> Sincronizar</>
-          }
+          <RefreshCw size={13} strokeWidth={2} />
+          {sincronizando ? 'Aguarde…' : 'Sincronizar'}
         </button>
       </div>
 
+      {/* Alerta */}
       {mensagem && (
-        <div className={`cp-alert cp-alert--${mensagem.tipo} mb-4`}>
+        <div
+          role="alert"
+          className={`text-sm rounded-xl px-4 py-3 mb-4 ${
+            mensagem.tipo === 'success'
+              ? 'bg-cp-success/10 text-cp-success border border-cp-success/20'
+              : 'bg-red-500/10 text-red-500 border border-red-500/20'
+          }`}
+        >
           {mensagem.texto}
         </div>
       )}
 
-      {/* Estado vazio */}
-      {!ultimoSync && !sincronizando && (
-        <div className="cp-empty">
-          <div className="cp-empty__icon">
-            <HeartPulse size={40} strokeWidth={1.5} style={{ color: 'var(--cp-border)' }} />
-          </div>
-          <p>Clique em <strong>Sincronizar</strong> para importar seus dados de saúde.</p>
-        </div>
-      )}
-
       {/* Cards de missão */}
-      {ultimoSync && (
-        <section aria-label="Missões do dia">
-          <div className="cp-grid cp-grid--missions mb-4">
-            {MISSOES_CONFIG.map(({ chave, titulo, Icone, unidade, cor }) => (
+      <section aria-label="Missões do dia" className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {MISSOES_CONFIG.map(({ chave, titulo, Icone, unidade, cor }) => {
+          const concluida = missoesConcluidas.includes(chave)
+          return (
+            <div key={chave} className="flex flex-col gap-2">
               <MissionCard
-                key={chave}
                 titulo={titulo}
                 Icone={Icone}
                 meta={METAS[chave]}
-                atual={ultimoSync[chave]}
+                atual={dados[chave] ?? 0}
                 unidade={unidade}
                 pontos={PONTOS_POR_MISSAO[chave]}
-                concluida={usuario.missoes_concluidas.includes(chave)}
+                concluida={concluida}
                 cor={cor}
-                sincronizado={true}
               />
-            ))}
-          </div>
-          <button className="btn-cp btn-cp--teal" onClick={salvarProgresso} disabled={sincronizando}>
-            Salvar Progresso
-          </button>
-        </section>
-      )}
+              {!concluida && progresso && dados[chave] >= METAS[chave] && (
+                <button
+                  onClick={() => concluirMissao(chave)}
+                  className="w-full bg-cp-success/10 hover:bg-cp-success/20 text-cp-success text-xs font-semibold rounded-full py-2 transition-colors"
+                >
+                  ✓ Marcar como concluída (+{PONTOS_POR_MISSAO[chave]} pts)
+                </button>
+              )}
+            </div>
+          )
+        })}
+      </section>
     </div>
   )
 }
