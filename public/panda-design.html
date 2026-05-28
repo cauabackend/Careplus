@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CarePlus+ — Panda Mascote</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060E2B;font-family:'Plus Jakarta Sans',sans-serif;color:#fff;padding:48px 24px;min-height:100vh}
+
+h1{text-align:center;font-size:.85rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px}
+h2{text-align:center;font-size:1.9rem;font-weight:700;margin-bottom:56px}
+
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;max-width:860px;margin:0 auto 72px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:860px;margin:0 auto}
+
+.scene{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:32px 24px 24px;display:flex;flex-direction:column;align-items:center;gap:20px;position:relative;overflow:hidden}
+.scene::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,180,216,.06),transparent 70%);pointer-events:none}
+
+.scene-label{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+.scene-title{font-size:1rem;font-weight:600;color:#fff;margin-top:-12px}
+.scene-desc{font-size:.78rem;color:rgba(255,255,255,.4);text-align:center;line-height:1.6;margin-top:4px}
+
+/* Mock UI elements */
+.glass-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px 18px;width:160px;position:relative}
+.card-label{font-size:.65rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em}
+.card-value{font-size:1.4rem;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans',sans-serif}
+.card-fill{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 16px 16px;height:40%;background:linear-gradient(to top,rgba(0,180,216,.25),transparent)}
+
+.mission-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 16px;width:170px;display:flex;align-items:center;gap:10px}
+.mission-dot{width:8px;height:8px;border-radius:50%;background:#00B4D8;flex-shrink:0}
+.mission-text{font-size:.75rem;color:rgba(255,255,255,.7)}
+
+.gift-box{width:56px;height:52px;background:linear-gradient(135deg,#1a4a6e,#0d2d42);border:1.5px solid rgba(0,180,216,.4);border-radius:10px;position:relative;display:flex;align-items:center;justify-content:center}
+.gift-ribbon-h{position:absolute;top:50%;left:0;right:0;height:2px;background:rgba(0,180,216,.7);transform:translateY(-50%)}
+.gift-ribbon-v{position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(0,180,216,.7);transform:translateX(-50%)}
+.gift-bow{position:absolute;top:-8px;left:50%;transform:translateX(-50%);width:20px;height:10px}
+
+.chart-line{width:160px;height:48px}
+
+/* BAMBOO */
+.bamboo{display:flex;gap:10px;align-items:flex-end}
+.bamboo-stalk{display:flex;flex-direction:column;gap:2px;align-items:center}
+.bamboo-seg{width:12px;border-radius:4px;background:linear-gradient(135deg,#4a8c3f,#3a7030)}
+.bamboo-node{width:14px;height:3px;border-radius:2px;background:#2d5a24}
+.bamboo-leaf{width:18px;height:9px;border-radius:50%;background:#4a8c3f;transform-origin:left center}
+.bamboo-leaf.left{transform:rotate(-35deg) translateX(-4px)}
+.bamboo-leaf.right{transform:rotate(25deg) translateX(2px)}
+
+/* ZZZ */
+.zzz{display:flex;flex-direction:column;align-items:flex-start;gap:2px;position:absolute}
+.z{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:rgba(180,210,255,.5)}
+
+/* ANIMATIONS */
+@keyframes breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.04)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+@keyframes swing2{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-8deg)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%,97%{transform:scaleY(0.1)}}
+@keyframes zzz-rise{0%{opacity:0;transform:translateY(0) scale(.6)}40%{opacity:.8}100%{opacity:0;transform:translateY(-40px) scale(1)}}
+@keyframes zzz-rise2{0%{opacity:0;transform:translateY(0) scale(.5)}40%{opacity:.6}100%{opacity:0;transform:translateY(-30px) scale(.9)}}
+@keyframes zzz-rise3{0%{opacity:0;transform:translateY(0) scale(.4)}40%{opacity:.4}100%{opacity:0;transform:translateY(-24px) scale(.8)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes arm-wave{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(-40deg)}}
+@keyframes arm-wave2{0%,100%{transform:rotate(10deg)}50%{transform:rotate(40deg)}}
+@keyframes leaf-sway{0%,100%{transform:rotate(-35deg) translateX(-4px)}50%{transform:rotate(-25deg) translateX(-4px)}}
+@keyframes point{0%,100%{transform:rotate(-20deg)}50%{transform:rotate(-35deg)}}
+@keyframes tail-wag{0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}}
+@keyframes slow-breathe{0%,100%{transform:scaleX(1) scaleY(1)}50%{transform:scaleX(1.05) scaleY(1.03)}}
+
+.breathing{animation:breathe 3s ease-in-out infinite;transform-origin:center bottom}
+.floating{animation:float 3.5s ease-in-out infinite}
+.blinking{animation:blink 5s ease-in-out infinite;transform-origin:center}
+
+.section-divider{width:48px;height:1px;background:rgba(255,255,255,.08);margin:0 auto 48px}
+.section-label{text-align:center;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:36px}
+</style>
+</head>
+<body>
+
+<h1>CarePlus+</h1>
+<h2>Mascote — Conceito de Design</h2>
+
+<!-- ROW 1 -->
+<div class="grid">
+
+  <!-- SCENE 1: Dashboard — sentado no card -->
+  <div class="scene">
+    <span class="scene-label">Dashboard</span>
+    <span class="scene-title">Sentado no card</span>
+
+    <div style="position:relative;width:200px;height:220px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:0">
+
+      <!-- Bamboo left -->
+      <div style="position:absolute;left:12px;bottom:64px">
+        <div class="bamboo-stalk">
+          <div class="bamboo-leaf left" style="animation:leaf-sway 4s ease-in-out infinite"></div>
+          <div class="bamboo-seg" style="height:30px"></div>
+          <div class="bamboo-node"></div>
+          <div class="bamboo-seg" style="height:28px"></div>
+          <div class="bamboo-node"></div>
+          <div class="bamboo-seg" style="height:24px"></div>
+        </div>
+      </div>
+
+      <!-- Panda sitting on card -->
+      <div class="floating" style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:110px">
+        <svg viewBox="0 0 110 145" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ears -->
+          <ellipse cx="26" cy="24" rx="15" ry="15" fill="#1A1A2E"/>
+          <ellipse cx="84" cy="24" rx="15" ry="15" fill="#1A1A2E"/>
+          <ellipse cx="26" cy="24" rx="8" ry="8" fill="#e8e8e0"/>
+          <ellipse cx="84" cy="24" rx="8" ry="8" fill="#e8e8e0"/>
+          <!-- Head -->
+          <circle cx="55" cy="50" r="38" fill="#F5F5F0"/>
+          <!-- Eye patches -->
+          <ellipse cx="38" cy="45" rx="13" ry="12" fill="#1A1A2E"/>
+          <ellipse cx="72" cy="45" rx="13" ry="12" fill="#1A1A2E"/>
+          <!-- Eyes -->
+          <circle cx="38" cy="45" r="6" fill="#F5F5F0"/>
+          <circle cx="72" cy="45" r="6" fill="#F5F5F0"/>
+          <circle cx="38" cy="45" r="4" fill="#1A1A2E"/>
+          <circle cx="72" cy="45" r="4" fill="#1A1A2E"/>
+          <circle cx="40" cy="43" r="1.5" fill="white" class="blinking"/>
+          <circle cx="74" cy="43" r="1.5" fill="white" class="blinking"/>
+          <!-- Nose -->
+          <ellipse cx="55" cy="58" rx="5" ry="3.5" fill="#1A1A2E"/>
+          <!-- Smile -->
+          <path d="M46 65 Q55 73 64 65" stroke="#1A1A2E" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <!-- Cheeks -->
+          <ellipse cx="26" cy="60" rx="8" ry="5" fill="#FFB8C6" opacity="0.35"/>
+          <ellipse cx="84" cy="60" rx="8" ry="5" fill="#FFB8C6" opacity="0.35"/>
+          <!-- Body -->
+          <ellipse cx="55" cy="118" rx="32" ry="30" fill="#1A1A2E" class="breathing"/>
+          <ellipse cx="55" cy="116" rx="22" ry="20" fill="#F5F5F0"/>
+          <!-- Arms -->
+          <ellipse cx="20" cy="108" rx="12" ry="18" fill="#1A1A2E" transform="rotate(-15 20 108)"/>
+          <ellipse cx="90" cy="108" rx="12" ry="18" fill="#1A1A2E" transform="rotate(15 90 108)"/>
+          <!-- Paws holding bamboo -->
+          <circle cx="15" cy="124" r="9" fill="#1A1A2E"/>
+          <circle cx="95" cy="124" r="9" fill="#1A1A2E"/>
+          <!-- Bamboo in hand -->
+          <rect x="11" y="68" width="8" height="52" rx="4" fill="#4a8c3f"/>
+          <rect x="11" y="82" width="8" height="3" rx="1" fill="#2d5a24"/>
+          <rect x="11" y="96" width="8" height="3" rx="1" fill="#2d5a24"/>
+          <ellipse cx="7" cy="75" rx="10" ry="5" fill="#4a8c3f" transform="rotate(-30 7 75)"/>
+          <!-- Legs dangling -->
+          <ellipse cx="40" cy="143" rx="11" ry="14" fill="#1A1A2E" style="animation:swing 2s ease-in-out infinite"/>
+          <ellipse cx="70" cy="143" rx="11" ry="14" fill="#1A1A2E" style="animation:swing2 2s ease-in-out infinite"/>
+          <ellipse cx="40" cy="155" rx="9" ry="6" fill="#1A1A2E" style="animation:swing 2s ease-in-out infinite"/>
+          <ellipse cx="70" cy="155" rx="9" ry="6" fill="#1A1A2E" style="animation:swing2 2s ease-in-out infinite"/>
+        </svg>
+      </div>
+
+      <!-- Card below panda -->
+      <div class="glass-card" style="width:180px">
+        <div class="card-fill"></div>
+        <div class="card-label">Hidratação</div>
+        <div class="card-value">2.1 <span style="font-size:.85rem;opacity:.5">/ 3L</span></div>
+        <div style="height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:8px">
+          <div style="width:70%;height:100%;background:linear-gradient(90deg,#00B4D8,#7DD9FF);border-radius:2px"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="scene-desc">Sentado na borda do card, pernas balançando.<br/>Segura bambu — animação de float contínua.</p>
+  </div>
+
+  <!-- SCENE 2: Missões — animado, apontando -->
+  <div class="scene">
+    <span class="scene-label">Missões</span>
+    <span class="scene-title">Apontando a missão</span>
+
+    <div style="position:relative;width:200px;height:220px;display:flex;align-items:center;justify-content:center">
+
+      <!-- Mission card -->
+      <div class="mission-card" style="position:absolute;right:0;top:80px;width:130px">
+        <div class="mission-dot"></div>
+        <div class="mission-text">10.000 passos hoje</div>
+      </div>
+
+      <!-- Panda pointing -->
+      <div style="position:absolute;left:0;top:20px;width:100px">
+        <svg viewBox="0 0 100 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Ears -->
+          <ellipse cx="24" cy="22" rx="14" ry="14" fill="#1A1A2E"/>
+          <ellipse cx="76" cy="22" rx="14" ry="14" fill="#1A1A2E"/>
+          <ellipse cx="24" cy="22" rx="7" ry="7" fill="#e8e8e0"/>
+          <ellipse cx="76" cy="22" rx="7" ry="7" fill="#e8e8e0"/>
+          <!-- Head -->
+          <circle cx="50" cy="46" r="34" fill="#F5F5F0"/>
+          <!-- Eye patches -->
+          <ellipse cx="35" cy="41" rx="12" ry="11" fill="#1A1A2E"/>
+          <ellipse cx="65" cy="41" rx="12" ry="11" fill="#1A1A2E"/>
+          <!-- Eyes - looking right -->
+          <circle cx="37" cy="41" r="5.5" fill="#F5F5F0"/>
+          <circle cx="67" cy="41" r="5.5" fill="#F5F5F0"/>
+          <circle cx="39" cy="41" r="3.5" fill="#1A1A2E"/>
+          <circle cx="69" cy="41" r="3.5" fill="#1A1A2E"/>
+          <circle cx="40.5" cy="39.5" r="1.3" fill="white"/>
+          <circle cx="70.5" cy="39.5" r="1.3" fill="white"/>
+          <!-- Nose -->
+          <ellipse cx="50" cy="53" rx="4.5" ry="3" fill="#1A1A2E"/>
+          <!-- Open smile -->
+          <path d="M42 60 Q50 70 58 60" stroke="#1A1A2E" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <!-- Cheeks -->
+          <ellipse cx="23" cy="55" rx="7" ry="4" fill="#FFB8C6" opacity="0.35"/>
+          <ellipse cx="77" cy="55" rx="7" ry="4" fill="#FFB8C6" opacity="0.35"/>
+          <!-- Body -->
+          <ellipse cx="50" cy="110" rx="28" ry="26" fill="#1A1A2E"/>
+          <ellipse cx="50" cy="108" rx="19" ry="18" fill="#F5F5F0" class="breathing"/>
+          <!-- Left arm normal -->
+          <ellipse cx="18" cy="102" rx="10" ry="16" fill="#1A1A2E" transform="rotate(-10 18 102)"/>
+          <circle cx="14" cy="116" r="8" fill="#1A1A2E"/>
+          <!-- Right arm pointing -->
+          <ellipse cx="82" cy="95" rx="10" ry="18" fill="#1A1A2E" transform="rotate(35 82 95)" style="animation:point 1.5s ease-in-out infinite;transform-origin:72px 110px"/>
+          <circle cx="90" cy="80" r="8" fill="#1A1A2E" style="animation:point 1.5s ease-in-out infinite;transform-origin:72px 110px"/>
+          <!-- Legs sitting -->
+          <ellipse cx="36" cy="134" rx="10" ry="13" fill="#1A1A2E"/>
+          <ellipse cx="64" cy="134" rx="10" ry="13" fill="#1A1A2E"/>
+          <ellipse cx="36" cy="145" rx="8" ry="5" fill="#1A1A2E"/>
+          <ellipse cx="64" cy="145" rx="8" ry="5" fill="#1A1A2E"/>
+        </svg>
+      </div>
+
+    </div>
+
+    <p class="scene-desc">Braço apontando pra missão do dia.<br/>Expressão animada, posição de incentivo.</p>
+  </div>
+
+  <!-- SCENE 3: Catálogo — empolgado com presente -->
+  <div class="scene">
+    <span class="scene-label">Catálogo</span>
+    <span class="scene-title">Recompensa resgatada</span>
+
+    <div style="position:relative;width:200px;height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+
+      <!-- Stars -->
+      <div style="position:absolute;top:10px;left:30px;font-size:14px;color:#F0B429;opacity:.7;animation:float 2s ease-in-out infinite">✦</div>
+      <div style="position:absolute;top:20px;right:30px;font-size:10px;color:#F0B429;opacity:.5;animation:float 2.5s ease-in-out infinite">✦</div>
+      <div style="position:absolute;top:35px;left:55px;font-size:8px;color:#7DD9FF;opacity:.6;animation:float 3s ease-in-out infinite">✦</div>
+
+      <!-- Panda jumping -->
+      <div style="animation:bounce 1s ease-in-out infinite">
+        <svg viewBox="0 0 100 140" fill="none" width="100" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="22" cy="20" rx="13" ry="13" fill="#1A1A2E"/>
+          <ellipse cx="78" cy="20" rx="13" ry="13" fill="#1A1A2E"/>
+          <ellipse cx="22" cy="20" rx="7" ry="7" fill="#e8e8e0"/>
+          <ellipse cx="78" cy="20" rx="7" ry="7" fill="#e8e8e0"/>
+          <circle cx="50" cy="44" r="34" fill="#F5F5F0"/>
+          <ellipse cx="35" cy="39" rx="12" ry="11" fill="#1A1A2E"/>
+          <ellipse cx="65" cy="39" rx="12" ry="11" fill="#1A1A2E"/>
+          <!-- Wide open excited eyes -->
+          <circle cx="35" cy="39" r="7" fill="#F5F5F0"/>
+          <circle cx="65" cy="39" r="7" fill="#F5F5F0"/>
+          <circle cx="35" cy="39" r="5" fill="#1A1A2E"/>
+          <circle cx="65" cy="39" r="5" fill="#1A1A2E"/>
+          <circle cx="37" cy="37" r="2" fill="white"/>
+          <circle cx="67" cy="37" r="2" fill="white"/>
+          <ellipse cx="50" cy="52" rx="4.5" ry="3" fill="#1A1A2E"/>
+          <!-- Big smile -->
+          <path d="M38 59 Q50 72 62 59" stroke="#1A1A2E" stroke-width="2.5" stroke-linecap="round" fill="rgba(255,180,180,0.2)"/>
+          <ellipse cx="22" cy="53" rx="7" ry="4" fill="#FFB8C6" opacity="0.45"/>
+          <ellipse cx="78" cy="53" rx="7" ry="4" fill="#FFB8C6" opacity="0.45"/>
+          <!-- Body -->
+          <ellipse cx="50" cy="104" rx="27" ry="25" fill="#1A1A2E"/>
+          <ellipse cx="50" cy="102" rx="18" ry="17" fill="#F5F5F0"/>
+          <!-- Arms raised -->
+          <ellipse cx="16" cy="88" rx="9" ry="16" fill="#1A1A2E" transform="rotate(-40 16 88)" style="animation:arm-wave 0.8s ease-in-out infinite"/>
+          <ellipse cx="84" cy="88" rx="9" ry="16" fill="#1A1A2E" transform="rotate(40 84 88)" style="animation:arm-wave2 0.8s ease-in-out infinite"/>
+          <circle cx="9" cy="76" r="7" fill="#1A1A2E" style="animation:arm-wave 0.8s ease-in-out infinite"/>
+          <circle cx="91" cy="76" r="7" fill="#1A1A2E" style="animation:arm-wave2 0.8s ease-in-out infinite"/>
+          <!-- Legs jumping -->
+          <ellipse cx="36" cy="126" rx="10" ry="11" fill="#1A1A2E" transform="rotate(-15 36 126)"/>
+          <ellipse cx="64" cy="126" rx="10" ry="11" fill="#1A1A2E" transform="rotate(15 64 126)"/>
+          <ellipse cx="30" cy="136" rx="8" ry="5" fill="#1A1A2E" transform="rotate(-20 30 136)"/>
+          <ellipse cx="70" cy="136" rx="8" ry="5" fill="#1A1A2E" transform="rotate(20 70 136)"/>
+        </svg>
+      </div>
+
+      <!-- Gift below -->
+      <div class="gift-box" style="width:52px;height:48px">
+        <div class="gift-ribbon-h"></div>
+        <div class="gift-ribbon-v"></div>
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%)">
+          <svg width="24" height="12" viewBox="0 0 24 12">
+            <path d="M12 6 C8 6 4 2 6 0 C8 -1 10 4 12 6" fill="none" stroke="rgba(0,180,216,.8)" stroke-width="1.5"/>
+            <path d="M12 6 C16 6 20 2 18 0 C16 -1 14 4 12 6" fill="none" stroke="rgba(0,180,216,.8)" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="scene-desc">Pulando de alegria ao resgatar uma recompensa.<br/>Braços levantados, olhos arregalados.</p>
+  </div>
+
+  <!-- SCENE 4: Crítico — dormindo com bambus -->
+  <div class="scene">
+    <span class="scene-label">Estado Crítico</span>
+    <span class="scene-title">Dormindo (energia baixa)</span>
+
+    <div style="position:relative;width:200px;height:220px;display:flex;align-items:center;justify-content:center">
+
+      <!-- Bamboo background -->
+      <div style="position:absolute;left:16px;bottom:40px;display:flex;gap:8px;align-items:flex-end">
+        <div class="bamboo-stalk">
+          <div class="bamboo-leaf right" style="animation:leaf-sway 5s ease-in-out infinite"></div>
+          <div class="bamboo-seg" style="height:44px"></div>
+          <div class="bamboo-node"></div>
+          <div class="bamboo-seg" style="height:36px"></div>
+          <div class="bamboo-node"></div>
+          <div class="bamboo-seg" style="height:30px"></div>
+        </div>
+        <div class="bamboo-stalk">
+          <div class="bamboo-leaf left" style="animation:leaf-sway 4s ease-in-out infinite .5s"></div>
+          <div class="bamboo-seg" style="height:36px"></div>
+          <div class="bamboo-node"></div>
+          <div class="bamboo-seg" style="height:28px"></div>
+          <div class="bamboo-node"></div>
+          <div class="bamboo-seg" style="height:22px"></div>
+        </div>
+      </div>
+
+      <!-- ZZZ floating -->
+      <div style="position:absolute;right:28px;top:30px">
+        <div style="animation:zzz-rise 3s ease-in-out infinite;font-size:16px;font-weight:700;color:rgba(180,210,255,.4);font-family:'Plus Jakarta Sans',sans-serif">z</div>
+      </div>
+      <div style="position:absolute;right:20px;top:20px">
+        <div style="animation:zzz-rise2 3s ease-in-out infinite .8s;font-size:20px;font-weight:700;color:rgba(180,210,255,.3);font-family:'Plus Jakarta Sans',sans-serif">z</div>
+      </div>
+      <div style="position:absolute;right:10px;top:8px">
+        <div style="animation:zzz-rise3 3s ease-in-out infinite 1.6s;font-size:13px;font-weight:700;color:rgba(180,210,255,.2);font-family:'Plus Jakarta Sans',sans-serif">z</div>
+      </div>
+
+      <!-- Panda lying down sleeping -->
+      <div style="position:absolute;bottom:40px;left:50%;transform:translateX(-45%)">
+        <svg viewBox="0 0 160 90" fill="none" width="160" xmlns="http://www.w3.org/2000/svg">
+          <!-- Body horizontal -->
+          <ellipse cx="75" cy="58" rx="50" ry="26" fill="#1A1A2E" style="animation:slow-breathe 4s ease-in-out infinite;transform-origin:center"/>
+          <ellipse cx="75" cy="56" rx="35" ry="18" fill="#F5F5F0"/>
+          <!-- Tail -->
+          <ellipse cx="126" cy="60" rx="10" ry="8" fill="#F5F5F0" style="animation:tail-wag 3s ease-in-out infinite"/>
+          <!-- Head to the left -->
+          <circle cx="24" cy="46" r="30" fill="#F5F5F0"/>
+          <!-- Ears on top -->
+          <ellipse cx="10" cy="22" rx="12" ry="12" fill="#1A1A2E"/>
+          <ellipse cx="38" cy="16" rx="12" ry="12" fill="#1A1A2E"/>
+          <ellipse cx="10" cy="22" rx="6" ry="6" fill="#e8e8e0"/>
+          <ellipse cx="38" cy="16" rx="6" ry="6" fill="#e8e8e0"/>
+          <!-- Eye patches closed/sleeping -->
+          <ellipse cx="14" cy="42" rx="11" ry="10" fill="#1A1A2E"/>
+          <ellipse cx="34" cy="38" rx="11" ry="10" fill="#1A1A2E"/>
+          <!-- Sleeping eyes (closed arcs) -->
+          <path d="M7 42 Q14 36 21 42" stroke="#F5F5F0" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M27 38 Q34 32 41 38" stroke="#F5F5F0" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- Nose -->
+          <ellipse cx="24" cy="54" rx="4" ry="3" fill="#1A1A2E"/>
+          <!-- Peaceful mouth -->
+          <path d="M19 59 Q24 63 29 59" stroke="#1A1A2E" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <!-- Front paws stretched out -->
+          <ellipse cx="88" cy="74" rx="14" ry="9" fill="#1A1A2E" transform="rotate(-10 88 74)"/>
+          <ellipse cx="110" cy="76" rx="14" ry="9" fill="#1A1A2E" transform="rotate(5 110 76)"/>
+          <circle cx="94" cy="80" r="8" fill="#1A1A2E"/>
+          <circle cx="114" cy="80" r="8" fill="#1A1A2E"/>
+        </svg>
+      </div>
+
+    </div>
+
+    <p class="scene-desc">Deitado entre bambus, dormindo profundamente.<br/>Cauda balançando devagar, zzz flutuando.</p>
+  </div>
+
+</div>
+
+<!-- SECTION 2: Expressões -->
+<div class="section-divider"></div>
+<p class="section-label">Expressões faciais — variações</p>
+
+<div class="grid-3" style="margin-bottom:56px">
+
+  <!-- Feliz -->
+  <div class="scene" style="padding:24px 16px 20px">
+    <svg viewBox="0 0 100 100" fill="none" width="80">
+      <ellipse cx="20" cy="18" rx="13" ry="13" fill="#1A1A2E"/>
+      <ellipse cx="80" cy="18" rx="13" ry="13" fill="#1A1A2E"/>
+      <ellipse cx="20" cy="18" rx="7" ry="7" fill="#e8e8e0"/>
+      <ellipse cx="80" cy="18" rx="7" ry="7" fill="#e8e8e0"/>
+      <circle cx="50" cy="52" r="38" fill="#F5F5F0"/>
+      <ellipse cx="34" cy="46" rx="13" ry="12" fill="#1A1A2E"/>
+      <ellipse cx="66" cy="46" rx="13" ry="12" fill="#1A1A2E"/>
+      <circle cx="34" cy="46" r="6.5" fill="#F5F5F0"/>
+      <circle cx="66" cy="46" r="6.5" fill="#F5F5F0"/>
+      <circle cx="34" cy="46" r="4.5" fill="#1A1A2E"/>
+      <circle cx="66" cy="46" r="4.5" fill="#1A1A2E"/>
+      <circle cx="36" cy="44" r="1.8" fill="white"/>
+      <circle cx="68" cy="44" r="1.8" fill="white"/>
+      <ellipse cx="50" cy="59" rx="5" ry="3.5" fill="#1A1A2E"/>
+      <path d="M40 67 Q50 78 60 67" stroke="#1A1A2E" stroke-width="2.2" stroke-linecap="round" fill="rgba(255,200,200,0.15)"/>
+      <ellipse cx="22" cy="62" rx="8" ry="5" fill="#FFB8C6" opacity="0.4"/>
+      <ellipse cx="78" cy="62" rx="8" ry="5" fill="#FFB8C6" opacity="0.4"/>
+    </svg>
+    <span class="scene-label" style="color:#7DD9FF">Excelente</span>
+  </div>
+
+  <!-- Sonolento -->
+  <div class="scene" style="padding:24px 16px 20px">
+    <svg viewBox="0 0 100 100" fill="none" width="80">
+      <ellipse cx="20" cy="18" rx="13" ry="13" fill="#1A1A2E"/>
+      <ellipse cx="80" cy="18" rx="13" ry="13" fill="#1A1A2E"/>
+      <ellipse cx="20" cy="18" rx="7" ry="7" fill="#e8e8e0"/>
+      <ellipse cx="80" cy="18" rx="7" ry="7" fill="#e8e8e0"/>
+      <circle cx="50" cy="52" r="38" fill="#F5F5F0"/>
+      <ellipse cx="34" cy="46" rx="13" ry="12" fill="#1A1A2E"/>
+      <ellipse cx="66" cy="46" rx="13" ry="12" fill="#1A1A2E"/>
+      <!-- Heavy eyelids -->
+      <circle cx="34" cy="48" r="6.5" fill="#F5F5F0"/>
+      <circle cx="66" cy="48" r="6.5" fill="#F5F5F0"/>
+      <circle cx="34" cy="49" r="4" fill="#1A1A2E"/>
+      <circle cx="66" cy="49" r="4" fill="#1A1A2E"/>
+      <rect x="27" y="42" width="14" height="6" rx="2" fill="#F5F5F0"/>
+      <rect x="59" y="42" width="14" height="6" rx="2" fill="#F5F5F0"/>
+      <ellipse cx="50" cy="59" rx="4.5" ry="3" fill="#1A1A2E"/>
+      <path d="M42 66 Q50 70 58 66" stroke="#1A1A2E" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <ellipse cx="22" cy="62" rx="8" ry="5" fill="#FFB8C6" opacity="0.2"/>
+      <ellipse cx="78" cy="62" rx="8" ry="5" fill="#FFB8C6" opacity="0.2"/>
+    </svg>
+    <span class="scene-label" style="color:#F0B429">Fraco</span>
+  </div>
+
+  <!-- Triste/crítico -->
+  <div class="scene" style="padding:24px 16px 20px">
+    <svg viewBox="0 0 100 100" fill="none" width="80">
+      <ellipse cx="20" cy="18" rx="13" ry="13" fill="#1A1A2E"/>
+      <ellipse cx="80" cy="18" rx="13" ry="13" fill="#1A1A2E"/>
+      <ellipse cx="20" cy="18" rx="7" ry="7" fill="#d8d0c8"/>
+      <ellipse cx="80" cy="18" rx="7" ry="7" fill="#d8d0c8"/>
+      <circle cx="50" cy="52" r="38" fill="#EFEDE8"/>
+      <ellipse cx="34" cy="46" rx="13" ry="12" fill="#2a1a10"/>
+      <ellipse cx="66" cy="46" rx="13" ry="12" fill="#2a1a10"/>
+      <!-- Sad closed eyes -->
+      <path d="M26 46 Q34 40 42 46" stroke="#EFEDE8" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <path d="M58 46 Q66 40 74 46" stroke="#EFEDE8" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50" cy="59" rx="4.5" ry="3" fill="#2a1a10"/>
+      <!-- Sad mouth -->
+      <path d="M42 70 Q50 63 58 70" stroke="#2a1a10" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    </svg>
+    <span class="scene-label" style="color:#C0704A">Crítico</span>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<p style="text-align:center;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.15)">CarePlus+ · Conceito v0.2 · Apenas para discussão de design</p>
+
+</body>
+</html>

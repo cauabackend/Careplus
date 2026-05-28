@@ -1,98 +1,75 @@
-import { Star, Zap, CheckCircle2, Gift, Award, CheckCircle } from 'lucide-react'
-import BadgeCard from '../../components/BadgeCard/BadgeCard'
-import StatCard from '../../components/StatCard/StatCard'
-import { BADGES_DISPONIVEIS } from '../../data/constants'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../../context/AuthContext'
+import { api }     from '../../services/api'
 
-export default function PerfilPage({ usuario }) {
-  const { nome, pontos, streak, badges, resgates, missoes_concluidas } = usuario
+const BADGES_INFO = {
+  primeiro_login:  { nome: 'Bem-vindo',           icone: '🌟' },
+  primeira_missao: { nome: 'Primeiros Passos',    icone: '🏃' },
+  caminhante:      { nome: 'Caminhante',          icone: '👟' },
+  hidratado:       { nome: 'Hidratado',           icone: '💧' },
+  bom_sono:        { nome: 'Dorminhoco Saudável', icone: '😴' },
+}
 
-  const badgesConquistadas = BADGES_DISPONIVEIS.filter(b => badges.includes(b.id))
+export default function PerfilPage() {
+  const { usuario } = useAuth()
+  const [badges, setBadges] = useState([])
+
+  useEffect(() => {
+    api.getBadges().then(setBadges).catch(() => {})
+  }, [])
+
+  if (!usuario) return null
 
   return (
     <div>
-      <header className="mb-4">
-        <div className="cp-page-label">Conta</div>
-        <h1 className="cp-page-title">Meu Perfil</h1>
+      <header className="mb-6">
+        <div className="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-muted dark:text-d-muted">Conta</div>
+        <h1 className="font-sora text-2xl font-extrabold text-text dark:text-d-text mt-0.5">Perfil</h1>
       </header>
 
-      {/* Card do usuário */}
-      <div
-        className="cp-card mb-4"
-        role="banner"
-        style={{ background: 'linear-gradient(135deg, var(--cp-navy) 0%, #071840 100%)', border: 'none' }}
-      >
-        <div className="d-flex align-items-center gap-3">
-          <div style={{
-            width: 60, height: 60, borderRadius: 14, flexShrink: 0,
-            background: 'linear-gradient(135deg, var(--cp-teal), #006F87)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.5rem', fontWeight: 700, color: '#fff',
-            fontFamily: "'Sora', sans-serif",
-          }}>
-            {nome.charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 700, fontFamily: "'Sora', sans-serif" }}>
-              {nome}
-            </div>
-            <div style={{ color: 'rgba(255,255,255,.5)', fontSize: '0.85rem' }}>Membro CarePlus</div>
-          </div>
+      {/* Card de info */}
+      <section aria-label="Informações pessoais" className="bg-card dark:bg-d-card border border-border dark:border-d-border rounded-2xl p-5 mb-4">
+        <div className="w-14 h-14 rounded-2xl bg-cp-teal/15 flex items-center justify-center mb-3">
+          <span className="font-sora text-xl font-extrabold text-cp-teal">
+            {(usuario.first_name || usuario.username).charAt(0).toUpperCase()}
+          </span>
         </div>
-      </div>
+        <h2 className="font-sora text-lg font-bold text-text dark:text-d-text">{usuario.first_name || usuario.username}</h2>
+        <p className="text-sm text-muted dark:text-d-muted">{usuario.email}</p>
 
-      {/* Estatísticas */}
-      <section aria-label="Estatísticas do perfil">
-        <div className="cp-grid cp-grid--stats mb-4">
-          <StatCard label="Pontos Totais" valor={pontos}                    Icone={Star}         invertido />
-          <StatCard label="Streak"        valor={`${streak}d`}              Icone={Zap}          cor="var(--cp-orange)" />
-          <StatCard label="Missões"       valor={missoes_concluidas.length} Icone={CheckCircle2} cor="var(--cp-success)" />
-          <StatCard label="Resgates"      valor={resgates.length}           Icone={Gift}         cor="var(--cp-gold)" />
+        <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="bg-bg dark:bg-d-bg rounded-xl p-3">
+            <div className="text-xs text-muted dark:text-d-muted mb-0.5">Pontos</div>
+            <div className="font-sora text-xl font-extrabold text-cp-teal">{usuario.pontos}</div>
+          </div>
+          <div className="bg-bg dark:bg-d-bg rounded-xl p-3">
+            <div className="text-xs text-muted dark:text-d-muted mb-0.5">Streak</div>
+            <div className="font-sora text-xl font-extrabold text-cp-orange">{usuario.streak} dias</div>
+          </div>
         </div>
       </section>
 
       {/* Badges */}
-      <section aria-labelledby="badges-title" className="cp-card mb-4">
-        <div className="cp-page-label mb-1">Conquistas</div>
-        <h2 id="badges-title" style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--cp-text)', marginBottom: '1.25rem', transition: 'color .35s' }}>
-          Badges ({badgesConquistadas.length}/{BADGES_DISPONIVEIS.length})
+      <section aria-labelledby="badges-title" className="bg-card dark:bg-d-card border border-border dark:border-d-border rounded-2xl p-5">
+        <h2 id="badges-title" className="font-sora text-base font-bold text-text dark:text-d-text mb-3">
+          Conquistas ({badges.length})
         </h2>
-        {badgesConquistadas.length === 0 ? (
-          <div className="cp-empty">
-            <div className="cp-empty__icon">
-              <Award size={40} strokeWidth={1.5} style={{ color: 'var(--cp-border)' }} />
-            </div>
-            <p>Complete missões para conquistar suas primeiras badges.</p>
-          </div>
+        {badges.length === 0 ? (
+          <p className="text-sm text-muted dark:text-d-muted">Complete missões para conquistar badges!</p>
         ) : (
-          <div className="cp-grid cp-grid--badges">
-            {badgesConquistadas.map(badge => (
-              <BadgeCard key={badge.id} badge={badge} />
-            ))}
-          </div>
+          <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {badges.map(b => {
+              const info = BADGES_INFO[b.badge_id] ?? { nome: b.badge_id, icone: '🏆' }
+              return (
+                <li key={b.id} className="bg-bg dark:bg-d-bg rounded-xl p-3 flex items-center gap-2">
+                  <span className="text-2xl">{info.icone}</span>
+                  <span className="text-xs font-semibold text-text dark:text-d-text">{info.nome}</span>
+                </li>
+              )
+            })}
+          </ul>
         )}
       </section>
-
-      {/* Histórico de resgates */}
-      {resgates.length > 0 && (
-        <section aria-labelledby="resgates-title" className="cp-card">
-          <div className="cp-page-label mb-1">Histórico</div>
-          <h2 id="resgates-title" style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--cp-text)', marginBottom: '1rem', transition: 'color .35s' }}>
-            Itens Resgatados
-          </h2>
-          <ul className="list-unstyled mb-0">
-            {resgates.map((r, i) => (
-              <li
-                key={i}
-                className="d-flex align-items-center gap-2 py-2"
-                style={{ borderBottom: i < resgates.length - 1 ? '1px solid var(--cp-border)' : 'none', fontSize: '0.9rem' }}
-              >
-                <CheckCircle size={16} strokeWidth={2} style={{ color: 'var(--cp-success)', flexShrink: 0 }} />
-                {r}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
     </div>
   )
 }

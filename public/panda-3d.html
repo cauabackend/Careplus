@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CarePlus+ — Panda 3D</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060E2B;font-family:'Plus Jakarta Sans',sans-serif;color:#fff;padding:56px 24px;min-height:100vh}
+h1{text-align:center;font-size:.8rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:8px}
+h2{text-align:center;font-size:2rem;font-weight:700;margin-bottom:12px}
+.sub{text-align:center;font-size:.85rem;color:rgba(255,255,255,.35);margin-bottom:60px}
+.section-label{text-align:center;font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:32px}
+.divider{width:40px;height:1px;background:rgba(255,255,255,.08);margin:56px auto 48px}
+.row{display:flex;justify-content:center;align-items:flex-end;gap:40px;flex-wrap:wrap;margin-bottom:16px}
+.col{display:flex;flex-direction:column;align-items:center;gap:14px}
+.tag{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+@keyframes breathe{0%,100%{transform:scaleY(1) scaleX(1)}50%{transform:scaleY(1.03) scaleX(1.015)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes swing{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+@keyframes swing2{0%,100%{transform:rotate(9deg)}50%{transform:rotate(-9deg)}}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}94%,97%{transform:scaleY(0.08)}}
+@keyframes zzz{0%{opacity:0;transform:translate(0,0) scale(.5)}50%{opacity:.7}100%{opacity:0;transform:translate(6px,-38px) scale(1)}}
+@keyframes zzz2{0%{opacity:0;transform:translate(0,0) scale(.4)}50%{opacity:.5}100%{opacity:0;transform:translate(5px,-28px) scale(.85)}}
+@keyframes tail{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes wave{0%,100%{transform:rotate(-35deg) translateX(4px)}50%{transform:rotate(-60deg) translateX(4px)}}
+@keyframes leaf{0%,100%{transform:rotate(-30deg)}50%{transform:rotate(-20deg)}}
+</style>
+</head>
+<body>
+
+<h1>CarePlus+</h1>
+<h2>Panda — Design 3D</h2>
+<p class="sub">Estrutura, iluminação, profundidade e perspectiva</p>
+
+<!-- ===== HERO: STANDING HAPPY ===== -->
+<div style="display:flex;justify-content:center;margin-bottom:16px">
+  <div class="col">
+    <div style="animation:float 4s ease-in-out infinite">
+      <svg viewBox="0 0 220 300" fill="none" width="220" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- HEAD -->
+          <radialGradient id="hG" cx="38%" cy="32%" r="68%">
+            <stop offset="0%" stop-color="#FFFFFF"/>
+            <stop offset="55%" stop-color="#F0EDE6"/>
+            <stop offset="100%" stop-color="#C8C4BB"/>
+          </radialGradient>
+          <radialGradient id="hRim" cx="50%" cy="50%" r="50%">
+            <stop offset="62%" stop-color="rgba(0,0,0,0)"/>
+            <stop offset="100%" stop-color="rgba(90,170,255,0.22)"/>
+          </radialGradient>
+          <!-- BLACK PARTS (lit) -->
+          <radialGradient id="bkL" cx="32%" cy="26%" r="74%">
+            <stop offset="0%" stop-color="#3A3A58"/>
+            <stop offset="100%" stop-color="#090912"/>
+          </radialGradient>
+          <!-- BLACK PARTS (dark side) -->
+          <radialGradient id="bkD" cx="28%" cy="22%" r="78%">
+            <stop offset="0%" stop-color="#242438"/>
+            <stop offset="100%" stop-color="#060610"/>
+          </radialGradient>
+          <!-- BODY -->
+          <radialGradient id="bdG" cx="33%" cy="24%" r="76%">
+            <stop offset="0%" stop-color="#303050"/>
+            <stop offset="65%" stop-color="#0E0E20"/>
+            <stop offset="100%" stop-color="#040408"/>
+          </radialGradient>
+          <!-- BELLY -->
+          <radialGradient id="blG" cx="40%" cy="32%" r="66%">
+            <stop offset="0%" stop-color="#FFFFFF"/>
+            <stop offset="80%" stop-color="#EAE6DE"/>
+            <stop offset="100%" stop-color="#D4D0C6"/>
+          </radialGradient>
+          <!-- EYE WHITE -->
+          <radialGradient id="ewG" cx="38%" cy="32%" r="68%">
+            <stop offset="0%" stop-color="#FFFFFF"/>
+            <stop offset="100%" stop-color="#DDDAD2"/>
+          </radialGradient>
+          <!-- EYE IRIS -->
+          <radialGradient id="eiG" cx="42%" cy="38%" r="62%">
+            <stop offset="0%" stop-color="#3C2A1E"/>
+            <stop offset="100%" stop-color="#080606"/>
+          </radialGradient>
+          <!-- EAR inner -->
+          <radialGradient id="earIn" cx="40%" cy="32%" r="68%">
+            <stop offset="0%" stop-color="#2E2E4A"/>
+            <stop offset="100%" stop-color="#0C0C18"/>
+          </radialGradient>
+          <!-- SHADOW -->
+          <filter id="drpSh">
+            <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="rgba(0,0,20,0.55)"/>
+          </filter>
+          <filter id="softSh">
+            <feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="rgba(0,0,20,0.4)"/>
+          </filter>
+        </defs>
+
+        <!-- GROUND SHADOW -->
+        <ellipse cx="110" cy="296" rx="62" ry="9" fill="rgba(0,0,0,0.35)"/>
+
+        <!-- ===== LEGS ===== -->
+        <!-- Left leg -->
+        <ellipse cx="85" cy="258" rx="22" ry="28" fill="url(#bkD)" filter="url(#softSh)"/>
+        <!-- Left leg highlight -->
+        <ellipse cx="78" cy="244" rx="9" ry="12" fill="rgba(60,60,100,0.45)" transform="rotate(-8 78 244)"/>
+        <!-- Left foot -->
+        <ellipse cx="81" cy="279" rx="26" ry="13" fill="url(#bkD)"/>
+        <ellipse cx="75" cy="274" rx="11" ry="5" fill="rgba(70,70,120,0.35)"/>
+
+        <!-- Right leg -->
+        <ellipse cx="135" cy="258" rx="22" ry="28" fill="url(#bkD)" filter="url(#softSh)"/>
+        <ellipse cx="128" cy="244" rx="8" ry="11" fill="rgba(50,50,88,0.3)" transform="rotate(-8 128 244)"/>
+        <!-- Right foot -->
+        <ellipse cx="139" cy="279" rx="26" ry="13" fill="url(#bkD)"/>
+
+        <!-- ===== BODY ===== -->
+        <ellipse cx="110" cy="195" rx="66" ry="72" fill="url(#bdG)" filter="url(#drpSh)" style="animation:breathe 3.5s ease-in-out infinite;transform-origin:110px 195px"/>
+        <!-- Body top shine -->
+        <ellipse cx="85" cy="148" rx="32" ry="20" fill="rgba(90,90,150,0.38)" transform="rotate(-18 85 148)"/>
+        <!-- Body right rim light -->
+        <ellipse cx="165" cy="200" rx="18" ry="38" fill="rgba(60,130,240,0.1)" transform="rotate(12 165 200)"/>
+
+        <!-- ===== BELLY ===== -->
+        <ellipse cx="110" cy="196" rx="42" ry="46" fill="url(#blG)"/>
+        <ellipse cx="105" cy="180" rx="18" ry="12" fill="rgba(255,255,255,0.45)" transform="rotate(-12 105 180)"/>
+
+        <!-- ===== LEFT ARM ===== -->
+        <ellipse cx="38" cy="200" rx="20" ry="32" fill="url(#bkL)" transform="rotate(-14 38 200)" filter="url(#softSh)"/>
+        <ellipse cx="32" cy="183" rx="9" ry="13" fill="rgba(80,80,128,0.45)" transform="rotate(-14 32 183)"/>
+        <!-- Left paw -->
+        <ellipse cx="30" cy="228" rx="18" ry="14" fill="url(#bkL)" transform="rotate(-8 30 228)"/>
+        <ellipse cx="24" cy="222" rx="8" ry="6" fill="rgba(70,70,118,0.4)"/>
+
+        <!-- ===== RIGHT ARM ===== -->
+        <ellipse cx="182" cy="200" rx="20" ry="32" fill="url(#bkD)" transform="rotate(14 182 200)" filter="url(#softSh)"/>
+        <!-- Right paw -->
+        <ellipse cx="190" cy="228" rx="18" ry="14" fill="url(#bkD)" transform="rotate(8 190 228)"/>
+
+        <!-- ===== HEAD ===== -->
+        <circle cx="110" cy="98" r="80" fill="url(#hG)" filter="url(#drpSh)"/>
+        <!-- Head rim light -->
+        <circle cx="110" cy="98" r="80" fill="url(#hRim)"/>
+        <!-- Head top shine -->
+        <ellipse cx="80" cy="48" rx="28" ry="18" fill="rgba(255,255,255,0.42)" transform="rotate(-22 80 48)"/>
+        <!-- Secondary head shine -->
+        <ellipse cx="65" cy="72" rx="10" ry="6" fill="rgba(255,255,255,0.2)" transform="rotate(-30 65 72)"/>
+
+        <!-- ===== EARS ===== -->
+        <!-- Left ear outer -->
+        <circle cx="44" cy="36" r="28" fill="url(#bkL)" filter="url(#softSh)"/>
+        <!-- Left ear inner -->
+        <circle cx="44" cy="36" r="17" fill="url(#earIn)"/>
+        <!-- Left ear highlight -->
+        <ellipse cx="36" cy="26" rx="9" ry="7" fill="rgba(90,90,140,0.55)"/>
+
+        <!-- Right ear outer -->
+        <circle cx="176" cy="36" r="28" fill="url(#bkD)" filter="url(#softSh)"/>
+        <!-- Right ear inner -->
+        <circle cx="176" cy="36" r="17" fill="url(#bkD)"/>
+        <!-- Right ear subtle highlight -->
+        <ellipse cx="168" cy="28" rx="7" ry="5" fill="rgba(60,60,100,0.35)"/>
+
+        <!-- ===== EYE PATCHES ===== -->
+        <!-- Left patch -->
+        <ellipse cx="78" cy="92" rx="24" ry="22" fill="url(#bkL)"/>
+        <ellipse cx="70" cy="80" rx="10" ry="8" fill="rgba(80,80,130,0.48)" transform="rotate(-18 70 80)"/>
+
+        <!-- Right patch -->
+        <ellipse cx="142" cy="92" rx="24" ry="22" fill="url(#bkD)"/>
+
+        <!-- ===== EYES ===== -->
+        <!-- Left eye: sclera -->
+        <circle cx="78" cy="92" r="14" fill="url(#ewG)"/>
+        <!-- Left eye: iris -->
+        <circle cx="78" cy="92" r="9.5" fill="url(#eiG)"/>
+        <!-- Left eye: pupil -->
+        <circle cx="78" cy="92" r="6" fill="#040404"/>
+        <!-- Left eye: primary reflection (large bright) -->
+        <circle cx="83" cy="86" r="3.8" fill="rgba(255,255,255,0.95)"/>
+        <!-- Left eye: secondary reflection (small) -->
+        <circle cx="72" cy="97" r="1.8" fill="rgba(255,255,255,0.5)"/>
+        <!-- Left eye blinking layer -->
+        <ellipse cx="78" cy="83" rx="14" ry="7" fill="url(#hG)" style="animation:blink 5s ease-in-out infinite;transform-origin:78px 92px"/>
+
+        <!-- Right eye: sclera -->
+        <circle cx="142" cy="92" r="14" fill="url(#ewG)"/>
+        <!-- Right eye: iris -->
+        <circle cx="142" cy="92" r="9.5" fill="url(#eiG)"/>
+        <!-- Right eye: pupil -->
+        <circle cx="142" cy="92" r="6" fill="#040404"/>
+        <!-- Right eye: reflections -->
+        <circle cx="147" cy="86" r="3.8" fill="rgba(255,255,255,0.95)"/>
+        <circle cx="136" cy="97" r="1.8" fill="rgba(255,255,255,0.5)"/>
+        <!-- Right eye blinking -->
+        <ellipse cx="142" cy="83" rx="14" ry="7" fill="url(#hG)" style="animation:blink 5s ease-in-out infinite .15s;transform-origin:142px 92px"/>
+
+        <!-- ===== NOSE ===== -->
+        <ellipse cx="110" cy="114" rx="10" ry="7.5" fill="#080810"/>
+        <!-- Nose highlight -->
+        <ellipse cx="106" cy="110" rx="4" ry="3" fill="rgba(90,90,140,0.65)"/>
+        <!-- Nose shine -->
+        <ellipse cx="107" cy="109" rx="2" ry="1.5" fill="rgba(140,140,200,0.4)"/>
+
+        <!-- ===== MOUTH ===== -->
+        <line x1="110" y1="121" x2="110" y2="126" stroke="#0A0A18" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M96 126 Q110 140 124 126" stroke="#0A0A18" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+
+        <!-- ===== CHEEKS ===== -->
+        <ellipse cx="55" cy="112" rx="16" ry="10" fill="rgba(255,150,165,0.28)"/>
+        <ellipse cx="165" cy="112" rx="16" ry="10" fill="rgba(255,150,165,0.22)"/>
+      </svg>
+    </div>
+    <span style="font-size:.75rem;font-weight:500;color:rgba(255,255,255,.4)">Estado normal — em pé</span>
+  </div>
+</div>
+
+<!-- STATES ROW -->
+<div class="divider"></div>
+<p class="section-label">Expressões por estado de saúde</p>
+
+<div class="row" style="align-items:center;gap:48px">
+
+  <!-- EXCELENTE -->
+  <div class="col">
+    <svg viewBox="0 0 160 170" fill="none" width="130">
+      <defs>
+        <radialGradient id="hG2" cx="38%" cy="32%" r="68%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="55%" stop-color="#F0EDE6"/><stop offset="100%" stop-color="#C8C4BB"/></radialGradient>
+        <radialGradient id="bkL2" cx="32%" cy="26%" r="74%"><stop offset="0%" stop-color="#3A3A58"/><stop offset="100%" stop-color="#090912"/></radialGradient>
+        <radialGradient id="bkD2" cx="28%" cy="22%" r="78%"><stop offset="0%" stop-color="#242438"/><stop offset="100%" stop-color="#060610"/></radialGradient>
+        <radialGradient id="ewG2" cx="38%" cy="32%" r="68%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DDDAD2"/></radialGradient>
+        <radialGradient id="eiG2" cx="42%" cy="38%" r="62%"><stop offset="0%" stop-color="#3C2A1E"/><stop offset="100%" stop-color="#080606"/></radialGradient>
+        <radialGradient id="bdG2" cx="33%" cy="24%" r="76%"><stop offset="0%" stop-color="#303050"/><stop offset="65%" stop-color="#0E0E20"/><stop offset="100%" stop-color="#040408"/></radialGradient>
+        <radialGradient id="blG2" cx="40%" cy="32%" r="66%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#D4D0C6"/></radialGradient>
+        <filter id="sh2"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="rgba(0,0,20,0.5)"/></filter>
+      </defs>
+      <ellipse cx="80" cy="167" rx="42" ry="6" fill="rgba(0,0,0,0.3)"/>
+      <!-- Body -->
+      <ellipse cx="80" cy="126" rx="46" ry="48" fill="url(#bdG2)" filter="url(#sh2)" style="animation:breathe 3s ease-in-out infinite;transform-origin:80px 126px"/>
+      <ellipse cx="80" cy="126" rx="30" ry="32" fill="url(#blG2)"/>
+      <!-- Arms raised excited -->
+      <ellipse cx="26" cy="108" rx="14" ry="22" fill="url(#bkL2)" transform="rotate(-40 26 108)" style="animation:wave 1.2s ease-in-out infinite"/>
+      <ellipse cx="134" cy="108" rx="14" ry="22" fill="url(#bkD2)" transform="rotate(40 134 108)"/>
+      <!-- Legs -->
+      <ellipse cx="62" cy="164" rx="15" ry="18" fill="url(#bkD2)"/>
+      <ellipse cx="98" cy="164" rx="15" ry="18" fill="url(#bkD2)"/>
+      <!-- Head -->
+      <circle cx="80" cy="60" r="55" fill="url(#hG2)" filter="url(#sh2)"/>
+      <ellipse cx="60" cy="30" rx="18" ry="12" fill="rgba(255,255,255,0.4)" transform="rotate(-22 60 30)"/>
+      <!-- Ears -->
+      <circle cx="30" cy="22" r="20" fill="url(#bkL2)"/><circle cx="30" cy="22" r="12" fill="url(#bkD2)"/>
+      <ellipse cx="24" cy="14" rx="6" ry="5" fill="rgba(90,90,140,0.55)"/>
+      <circle cx="130" cy="22" r="20" fill="url(#bkD2)"/><circle cx="130" cy="22" r="12" fill="url(#bkD2)"/>
+      <!-- Patches -->
+      <ellipse cx="56" cy="58" rx="17" ry="16" fill="url(#bkL2)"/>
+      <ellipse cx="104" cy="58" rx="17" ry="16" fill="url(#bkD2)"/>
+      <!-- Eyes wide + sparkling -->
+      <circle cx="56" cy="58" r="11" fill="url(#ewG2)"/>
+      <circle cx="56" cy="58" r="7.5" fill="url(#eiG2)"/>
+      <circle cx="56" cy="58" r="5" fill="#040404"/>
+      <circle cx="61" cy="52" r="3.2" fill="rgba(255,255,255,0.95)"/>
+      <circle cx="50" cy="63" r="1.4" fill="rgba(255,255,255,0.5)"/>
+      <circle cx="104" cy="58" r="11" fill="url(#ewG2)"/>
+      <circle cx="104" cy="58" r="7.5" fill="url(#eiG2)"/>
+      <circle cx="104" cy="58" r="5" fill="#040404"/>
+      <circle cx="109" cy="52" r="3.2" fill="rgba(255,255,255,0.95)"/>
+      <circle cx="98" cy="63" r="1.4" fill="rgba(255,255,255,0.5)"/>
+      <!-- Nose -->
+      <ellipse cx="80" cy="72" rx="7" ry="5.5" fill="#080810"/><ellipse cx="77" cy="69" rx="2.8" ry="2" fill="rgba(90,90,140,0.6)"/>
+      <!-- Big smile open -->
+      <line x1="80" y1="77" x2="80" y2="81" stroke="#0A0A18" stroke-width="2" stroke-linecap="round"/>
+      <path d="M68 81 Q80 96 92 81" stroke="#0A0A18" stroke-width="2.5" stroke-linecap="round" fill="rgba(255,180,180,0.15)"/>
+      <!-- Cheeks flushed -->
+      <ellipse cx="36" cy="70" rx="12" ry="7" fill="rgba(255,140,160,0.38)"/>
+      <ellipse cx="124" cy="70" rx="12" ry="7" fill="rgba(255,140,160,0.32)"/>
+    </svg>
+    <span class="tag" style="color:#7DD9FF">Excelente</span>
+  </div>
+
+  <!-- FRACO -->
+  <div class="col">
+    <svg viewBox="0 0 160 170" fill="none" width="120">
+      <defs>
+        <radialGradient id="hG3" cx="38%" cy="32%" r="68%"><stop offset="0%" stop-color="#F5F2EB"/><stop offset="55%" stop-color="#E8E4DC"/><stop offset="100%" stop-color="#C0BDB5"/></radialGradient>
+        <radialGradient id="bkD3" cx="28%" cy="22%" r="78%"><stop offset="0%" stop-color="#1C1C30"/><stop offset="100%" stop-color="#050508"/></radialGradient>
+        <radialGradient id="bdG3" cx="33%" cy="24%" r="76%"><stop offset="0%" stop-color="#1A1A2E"/><stop offset="65%" stop-color="#090918"/><stop offset="100%" stop-color="#030306"/></radialGradient>
+        <radialGradient id="blG3" cx="40%" cy="32%" r="66%"><stop offset="0%" stop-color="#F0EDE5"/><stop offset="100%" stop-color="#C8C4BC"/></radialGradient>
+        <filter id="sh3"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="rgba(0,0,20,0.5)"/></filter>
+      </defs>
+      <ellipse cx="80" cy="167" rx="38" ry="5" fill="rgba(0,0,0,0.25)"/>
+      <ellipse cx="80" cy="126" rx="44" ry="46" fill="url(#bdG3)" filter="url(#sh3)" style="animation:breathe 5s ease-in-out infinite;transform-origin:80px 126px"/>
+      <ellipse cx="80" cy="126" rx="28" ry="30" fill="url(#blG3)"/>
+      <ellipse cx="28" cy="122" rx="13" ry="20" fill="url(#bkD3)" transform="rotate(-6 28 122)"/>
+      <ellipse cx="132" cy="122" rx="13" ry="20" fill="url(#bkD3)" transform="rotate(6 132 122)"/>
+      <ellipse cx="62" cy="163" rx="14" ry="17" fill="url(#bkD3)"/>
+      <ellipse cx="98" cy="163" rx="14" ry="17" fill="url(#bkD3)"/>
+      <circle cx="80" cy="60" r="52" fill="url(#hG3)" filter="url(#sh3)"/>
+      <ellipse cx="60" cy="30" rx="16" ry="10" fill="rgba(255,255,255,0.28)" transform="rotate(-22 60 30)"/>
+      <circle cx="30" cy="22" r="19" fill="url(#bkD3)"/><circle cx="30" cy="22" r="11" fill="url(#bkD3)"/>
+      <circle cx="130" cy="22" r="19" fill="url(#bkD3)"/><circle cx="130" cy="22" r="11" fill="url(#bkD3)"/>
+      <ellipse cx="56" cy="57" rx="16" ry="15" fill="url(#bkD3)"/>
+      <ellipse cx="104" cy="57" rx="16" ry="15" fill="url(#bkD3)"/>
+      <!-- Half-closed eyes (tired) -->
+      <circle cx="56" cy="59" r="10" fill="#F0EDE5"/><circle cx="56" cy="60" r="7" fill="#1A1008"/><circle cx="56" cy="60" r="4.5" fill="#030302"/>
+      <circle cx="60" cy="55" r="2.5" fill="rgba(255,255,255,0.85)"/>
+      <!-- Heavy eyelid covering top half -->
+      <ellipse cx="56" cy="52" rx="10.5" ry="8" fill="url(#hG3)"/>
+      <circle cx="104" cy="59" r="10" fill="#F0EDE5"/><circle cx="104" cy="60" r="7" fill="#1A1008"/><circle cx="104" cy="60" r="4.5" fill="#030302"/>
+      <circle cx="108" cy="55" r="2.5" fill="rgba(255,255,255,0.85)"/>
+      <ellipse cx="104" cy="52" rx="10.5" ry="8" fill="url(#hG3)"/>
+      <ellipse cx="80" cy="71" rx="7" ry="5" fill="#060608"/>
+      <!-- Tired neutral mouth -->
+      <path d="M71 79 Q80 83 89 79" stroke="#080810" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    </svg>
+    <span class="tag" style="color:#F0B429">Fraco</span>
+  </div>
+
+  <!-- CRÍTICO: sleeping -->
+  <div class="col" style="position:relative">
+    <!-- ZZZ -->
+    <div style="position:absolute;top:10px;right:10px;pointer-events:none">
+      <span style="font-size:15px;font-weight:700;color:rgba(160,200,255,.45);font-family:'Plus Jakarta Sans';animation:zzz 2.8s ease-in-out infinite;display:block">z</span>
+    </div>
+    <div style="position:absolute;top:0;right:20px;pointer-events:none">
+      <span style="font-size:20px;font-weight:700;color:rgba(160,200,255,.32);font-family:'Plus Jakarta Sans';animation:zzz2 2.8s ease-in-out infinite .9s;display:block">z</span>
+    </div>
+
+    <svg viewBox="0 0 200 120" fill="none" width="180">
+      <defs>
+        <radialGradient id="hG4" cx="38%" cy="32%" r="68%"><stop offset="0%" stop-color="#EEEBE3"/><stop offset="55%" stop-color="#E0DDD5"/><stop offset="100%" stop-color="#BCBAB2"/></radialGradient>
+        <radialGradient id="bkD4" cx="28%" cy="22%" r="78%"><stop offset="0%" stop-color="#181826"/><stop offset="100%" stop-color="#040407"/></radialGradient>
+        <radialGradient id="bdG4" cx="33%" cy="24%" r="76%"><stop offset="0%" stop-color="#181826"/><stop offset="100%" stop-color="#040407"/></radialGradient>
+        <radialGradient id="blG4" cx="40%" cy="32%" r="66%"><stop offset="0%" stop-color="#E8E5DC"/><stop offset="100%" stop-color="#C4C0B8"/></radialGradient>
+        <filter id="sh4"><feDropShadow dx="0" dy="5" stdDeviation="8" flood-color="rgba(0,0,20,0.45)"/></filter>
+      </defs>
+      <ellipse cx="100" cy="117" rx="75" ry="7" fill="rgba(0,0,0,0.3)"/>
+      <!-- Body lying down -->
+      <ellipse cx="108" cy="80" rx="66" ry="32" fill="url(#bdG4)" filter="url(#sh4)" style="animation:breathe 6s ease-in-out infinite;transform-origin:108px 80px"/>
+      <ellipse cx="108" cy="78" rx="44" ry="22" fill="url(#blG4)"/>
+      <!-- Tail -->
+      <ellipse cx="175" cy="82" rx="14" ry="10" fill="url(#hG4)" style="animation:tail 3.5s ease-in-out infinite"/>
+      <!-- Legs stretched back -->
+      <ellipse cx="148" cy="96" rx="18" ry="10" fill="url(#bkD4)" transform="rotate(-8 148 96)"/>
+      <ellipse cx="162" cy="102" rx="18" ry="10" fill="url(#bkD4)" transform="rotate(6 162 102)"/>
+      <!-- Head to the side -->
+      <circle cx="34" cy="58" r="42" fill="url(#hG4)" filter="url(#sh4)"/>
+      <ellipse cx="20" cy="30" rx="18" ry="14" fill="rgba(255,255,255,0.3)" transform="rotate(-22 20 30)"/>
+      <!-- Ears on top of head -->
+      <circle cx="14" cy="22" r="16" fill="url(#bkD4)"/><circle cx="14" cy="22" r="9" fill="url(#bkD4)"/>
+      <circle cx="52" cy="14" r="16" fill="url(#bkD4)"/><circle cx="52" cy="14" r="9" fill="url(#bkD4)"/>
+      <!-- Eye patches -->
+      <ellipse cx="22" cy="55" rx="14" ry="13" fill="url(#bkD4)"/>
+      <ellipse cx="46" cy="50" rx="14" ry="13" fill="url(#bkD4)"/>
+      <!-- Sleeping eyes: closed arcs -->
+      <path d="M14 55 Q22 48 30 55" stroke="rgba(238,235,227,0.8)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M38 50 Q46 43 54 50" stroke="rgba(238,235,227,0.8)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Nose -->
+      <ellipse cx="34" cy="67" rx="6.5" ry="5" fill="#050508"/>
+      <!-- Content mouth -->
+      <path d="M27 73 Q34 79 41 73" stroke="#080810" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <!-- Front paws stretched -->
+      <ellipse cx="76" cy="90" rx="18" ry="10" fill="url(#bkD4)" transform="rotate(-15 76 90)"/>
+      <ellipse cx="93" cy="96" rx="18" ry="10" fill="url(#bkD4)" transform="rotate(8 93 96)"/>
+    </svg>
+    <span class="tag" style="color:#C0704A">Crítico — dormindo</span>
+  </div>
+
+</div>
+
+<!-- POSES ROW -->
+<div class="divider"></div>
+<p class="section-label">Interações com o layout</p>
+
+<div class="row" style="align-items:flex-end;gap:56px">
+
+  <!-- Sentado no card -->
+  <div class="col">
+    <div style="position:relative;width:160px">
+      <!-- Panda on card -->
+      <div style="position:absolute;top:-90px;left:50%;transform:translateX(-50%);animation:float 3.5s ease-in-out infinite">
+        <svg viewBox="0 0 110 130" fill="none" width="90">
+          <defs>
+            <radialGradient id="hGs" cx="38%" cy="32%" r="68%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="55%" stop-color="#F0EDE6"/><stop offset="100%" stop-color="#C8C4BB"/></radialGradient>
+            <radialGradient id="bkLs" cx="32%" cy="26%" r="74%"><stop offset="0%" stop-color="#3A3A58"/><stop offset="100%" stop-color="#090912"/></radialGradient>
+            <radialGradient id="bkDs" cx="28%" cy="22%" r="78%"><stop offset="0%" stop-color="#242438"/><stop offset="100%" stop-color="#060610"/></radialGradient>
+            <radialGradient id="bdGs" cx="33%" cy="24%" r="76%"><stop offset="0%" stop-color="#303050"/><stop offset="100%" stop-color="#040408"/></radialGradient>
+            <radialGradient id="blGs" cx="40%" cy="32%" r="66%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#D4D0C6"/></radialGradient>
+            <radialGradient id="ewGs" cx="38%" cy="32%" r="68%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DDDAD2"/></radialGradient>
+            <radialGradient id="eiGs" cx="42%" cy="38%" r="62%"><stop offset="0%" stop-color="#3C2A1E"/><stop offset="100%" stop-color="#080606"/></radialGradient>
+            <filter id="shs"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(0,0,20,0.45)"/></filter>
+          </defs>
+          <!-- Body sitting -->
+          <ellipse cx="55" cy="90" rx="34" ry="36" fill="url(#bdGs)" filter="url(#shs)" style="animation:breathe 3.5s ease-in-out infinite;transform-origin:55px 90px"/>
+          <ellipse cx="55" cy="89" rx="22" ry="24" fill="url(#blGs)"/>
+          <!-- Arms -->
+          <ellipse cx="16" cy="88" rx="11" ry="18" fill="url(#bkLs)" transform="rotate(-12 16 88)"/>
+          <ellipse cx="94" cy="88" rx="11" ry="18" fill="url(#bkDs)" transform="rotate(12 94 88)"/>
+          <!-- Bamboo in left paw -->
+          <rect x="6" y="50" width="7" height="44" rx="3.5" fill="#4a8c3f"/>
+          <rect x="6" y="62" width="7" height="2.5" rx="1" fill="#2d5a24"/>
+          <rect x="6" y="74" width="7" height="2.5" rx="1" fill="#2d5a24"/>
+          <ellipse cx="2" cy="56" rx="9" ry="4.5" fill="#5aac4f" transform="rotate(-28 2 56)" style="animation:leaf 4s ease-in-out infinite"/>
+          <!-- Paws -->
+          <ellipse cx="12" cy="104" rx="11" ry="8" fill="url(#bkLs)" transform="rotate(-8 12 104)"/>
+          <ellipse cx="98" cy="104" rx="11" ry="8" fill="url(#bkDs)" transform="rotate(8 98 104)"/>
+          <!-- Head -->
+          <circle cx="55" cy="44" r="36" fill="url(#hGs)" filter="url(#shs)"/>
+          <ellipse cx="40" cy="22" rx="14" ry="9" fill="rgba(255,255,255,0.42)" transform="rotate(-22 40 22)"/>
+          <!-- Ears -->
+          <circle cx="22" cy="18" r="16" fill="url(#bkLs)"/><circle cx="22" cy="18" r="9" fill="url(#bkDs)"/>
+          <ellipse cx="17" cy="11" rx="5" ry="4" fill="rgba(90,90,140,0.5)"/>
+          <circle cx="88" cy="18" r="16" fill="url(#bkDs)"/><circle cx="88" cy="18" r="9" fill="url(#bkDs)"/>
+          <!-- Patches -->
+          <ellipse cx="40" cy="42" rx="13" ry="12" fill="url(#bkLs)"/>
+          <ellipse cx="70" cy="42" rx="13" ry="12" fill="url(#bkDs)"/>
+          <!-- Eyes -->
+          <circle cx="40" cy="42" r="8" fill="url(#ewGs)"/><circle cx="40" cy="42" r="5.5" fill="url(#eiGs)"/><circle cx="40" cy="42" r="3.5" fill="#040404"/>
+          <circle cx="44" cy="37.5" r="2.2" fill="rgba(255,255,255,0.95)"/>
+          <circle cx="70" cy="42" r="8" fill="url(#ewGs)"/><circle cx="70" cy="42" r="5.5" fill="url(#eiGs)"/><circle cx="70" cy="42" r="3.5" fill="#040404"/>
+          <circle cx="74" cy="37.5" r="2.2" fill="rgba(255,255,255,0.95)"/>
+          <!-- Nose -->
+          <ellipse cx="55" cy="53" rx="5.5" ry="4" fill="#080810"/>
+          <!-- Smile -->
+          <line x1="55" y1="57" x2="55" y2="60" stroke="#0A0A18" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M47 60 Q55 68 63 60" stroke="#0A0A18" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <!-- Cheeks -->
+          <ellipse cx="24" cy="52" rx="9" ry="5.5" fill="rgba(255,150,165,0.3)"/>
+          <ellipse cx="86" cy="52" rx="9" ry="5.5" fill="rgba(255,150,165,0.25)"/>
+          <!-- Legs dangling -->
+          <ellipse cx="38" cy="122" rx="10" ry="13" fill="url(#bkDs)" style="animation:swing 2.2s ease-in-out infinite"/>
+          <ellipse cx="72" cy="122" rx="10" ry="13" fill="url(#bkDs)" style="animation:swing2 2.2s ease-in-out infinite"/>
+          <ellipse cx="37" cy="133" rx="9" ry="6" fill="url(#bkDs)" style="animation:swing 2.2s ease-in-out infinite"/>
+          <ellipse cx="73" cy="133" rx="9" ry="6" fill="url(#bkDs)" style="animation:swing2 2.2s ease-in-out infinite"/>
+        </svg>
+      </div>
+      <!-- Card -->
+      <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px 16px;width:160px;position:relative;overflow:hidden">
+        <div style="position:absolute;bottom:0;left:0;right:0;height:45%;background:linear-gradient(to top,rgba(0,180,216,.2),transparent);border-radius:0 0 16px 16px"></div>
+        <div style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em">Hidratação</div>
+        <div style="font-size:1.35rem;font-weight:700;color:#fff;margin-top:2px">2.1 <span style="font-size:.8rem;opacity:.45">/ 3L</span></div>
+        <div style="height:3.5px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:10px"><div style="width:70%;height:100%;background:linear-gradient(90deg,#00B4D8,#7DD9FF);border-radius:2px"></div></div>
+      </div>
+    </div>
+    <span style="font-size:.68rem;color:rgba(255,255,255,.35);margin-top:8px">Dashboard</span>
+  </div>
+
+  <!-- Deitado no histórico -->
+  <div class="col">
+    <div style="position:relative;width:200px">
+      <div style="position:absolute;top:-78px;left:50%;transform:translateX(-40%)">
+        <svg viewBox="0 0 140 90" fill="none" width="130">
+          <defs>
+            <radialGradient id="hGh" cx="38%" cy="32%" r="68%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="55%" stop-color="#F0EDE6"/><stop offset="100%" stop-color="#C8C4BB"/></radialGradient>
+            <radialGradient id="bkDh" cx="28%" cy="22%" r="78%"><stop offset="0%" stop-color="#242438"/><stop offset="100%" stop-color="#060610"/></radialGradient>
+            <radialGradient id="bdGh" cx="33%" cy="24%" r="76%"><stop offset="0%" stop-color="#303050"/><stop offset="100%" stop-color="#040408"/></radialGradient>
+            <radialGradient id="blGh" cx="40%" cy="32%" r="66%"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#D4D0C6"/></radialGradient>
+            <filter id="shh"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="rgba(0,0,20,0.4)"/></filter>
+          </defs>
+          <!-- Body lying on belly -->
+          <ellipse cx="78" cy="64" rx="52" ry="24" fill="url(#bdGh)" filter="url(#shh)" style="animation:breathe 4s ease-in-out infinite;transform-origin:78px 64px"/>
+          <ellipse cx="78" cy="62" rx="36" ry="17" fill="url(#blGh)"/>
+          <ellipse cx="132" cy="68" rx="12" ry="8" fill="url(#hGh)" style="animation:tail 3.5s ease-in-out infinite"/>
+          <!-- Paws stretched forward -->
+          <ellipse cx="38" cy="75" rx="16" ry="9" fill="url(#bkDh)" transform="rotate(-12 38 75)"/>
+          <ellipse cx="54" cy="80" rx="16" ry="9" fill="url(#bkDh)" transform="rotate(6 54 80)"/>
+          <!-- Head resting on paws, looking ahead -->
+          <circle cx="28" cy="44" r="32" fill="url(#hGh)" filter="url(#shh)"/>
+          <ellipse cx="16" cy="22" rx="12" ry="10" fill="rgba(255,255,255,0.38)" transform="rotate(-22 16 22)"/>
+          <!-- Ears -->
+          <circle cx="10" cy="18" r="13" fill="url(#bkDh)"/><circle cx="10" cy="18" r="7" fill="url(#bkDh)"/>
+          <circle cx="44" cy="12" r="13" fill="url(#bkDh)"/><circle cx="44" cy="12" r="7" fill="url(#bkDh)"/>
+          <!-- Eye patches looking forward/up -->
+          <ellipse cx="16" cy="42" rx="11" ry="10" fill="url(#bkDh)"/>
+          <ellipse cx="38" cy="38" rx="11" ry="10" fill="url(#bkDh)"/>
+          <!-- Eyes looking up/thinking -->
+          <circle cx="16" cy="42" r="7" fill="#F5F2EB"/><circle cx="17" cy="40" r="4.5" fill="#1A1008"/><circle cx="17" cy="40" r="3" fill="#040302"/>
+          <circle cx="19" cy="37.5" r="1.8" fill="rgba(255,255,255,0.9)"/>
+          <circle cx="38" cy="38" r="7" fill="#F5F2EB"/><circle cx="39" cy="36" r="4.5" fill="#1A1008"/><circle cx="39" cy="36" r="3" fill="#040302"/>
+          <circle cx="41" cy="33.5" r="1.8" fill="rgba(255,255,255,0.9)"/>
+          <ellipse cx="28" cy="52" rx="5" ry="3.8" fill="#060608"/>
+          <path d="M22 58 Q28 63 34 58" stroke="#080810" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <!-- Chart card -->
+      <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px 14px;width:200px">
+        <div style="font-size:.62rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Histórico — 7 dias</div>
+        <svg width="172" height="42" viewBox="0 0 172 42">
+          <defs><linearGradient id="lineGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="rgba(0,180,216,0.25)"/><stop offset="100%" stop-color="rgba(0,180,216,0)"/></linearGradient></defs>
+          <path d="M0 32 L24 22 L48 28 L72 14 L96 18 L120 8 L144 12 L172 6 L172 42 L0 42Z" fill="url(#lineGrad)"/>
+          <path d="M0 32 L24 22 L48 28 L72 14 L96 18 L120 8 L144 12 L172 6" stroke="#00B4D8" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <span style="font-size:.68rem;color:rgba(255,255,255,.35);margin-top:8px">Histórico</span>
+  </div>
+
+</div>
+
+<div style="text-align:center;margin-top:64px">
+  <p style="font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.12)">CarePlus+ · Panda 3D v0.3 · Conceito de design</p>
+</div>
+
+</body>
+</html>
