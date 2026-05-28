@@ -1,27 +1,26 @@
-/*
- * StatCard — card de estatística com ícone lucide no topo direito
- *
- * Props:
- *   label     → rótulo (ex: "Pontos Totais")
- *   valor     → valor exibido (ex: 420 ou "7d")
- *   Icone     → componente lucide-react (ex: Star) — uppercase = React component
- *   cor       → cor da borda superior e do ícone (CSS value ou variável)
- *   invertido → boolean — fundo escuro navy (card de pontos)
- */
-export default function StatCard({ label, valor, Icone, cor, invertido }) {
+export default function StatCard({ label, valor, Icone, cor = '#00BFDF', invertido = false }) {
   return (
-    <div
-      className={`cp-stat-card ${invertido ? 'cp-stat-card--inv' : ''}`}
-      style={invertido ? {} : { '--color': cor }}
+    <article
+      className={`rounded-2xl border p-4 flex items-center gap-3 transition-colors ${
+        invertido
+          ? 'bg-cp-navy dark:bg-cp-navy border-cp-navy-2'
+          : 'bg-card dark:bg-d-card border-border dark:border-d-border'
+      }`}
     >
-      {/* Ícone no topo direito — presença discreta, não compete com o número */}
-      {Icone && (
-        <div className="cp-stat-card__icon-row">
-          <Icone size={18} strokeWidth={1.75} />
+      <div
+        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+        style={{ background: `${cor}18` }}
+      >
+        <Icone size={18} strokeWidth={2} style={{ color: cor }} />
+      </div>
+      <div className="min-w-0">
+        <div className={`text-[0.65rem] font-bold tracking-widest uppercase ${invertido ? 'text-white/50' : 'text-muted dark:text-d-muted'}`}>
+          {label}
         </div>
-      )}
-      <div className="cp-stat-card__value">{valor}</div>
-      <div className="cp-stat-card__label">{label}</div>
-    </div>
+        <div className={`font-sora text-xl font-extrabold leading-tight ${invertido ? 'text-white' : 'text-text dark:text-d-text'}`}>
+          {valor}
+        </div>
+      </div>
+    </article>
   )
 }
