@@ -7,7 +7,7 @@ const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Ag
 
 function BookPage({ entry }) {
   const { mes, dias_ativos, total_dias, densidade } = entry
-  const nomeMes = MESES[mes - 1]
+  const nomeMes = MESES[mes - 1] || `Mês ${mes}`
   // Render lines representing days; active days are filled
   const lines = Array.from({ length: total_dias }, (_, i) => i < dias_ativos)
 
@@ -41,12 +41,16 @@ function BookPage({ entry }) {
 export default function ChroniclePage() {
   const [dados, setDados] = useState([])
   const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState(null)
   const { estado } = useVitalsWeather()
 
   useEffect(() => {
     api.getChronicle()
       .then(setDados)
-      .catch(console.error)
+      .catch((e) => {
+        console.error(e)
+        setErro('Não foi possível carregar o histórico. Tente novamente.')
+      })
       .finally(() => setCarregando(false))
   }, [])
 
@@ -64,6 +68,12 @@ export default function ChroniclePage() {
 
       {carregando && (
         <p className="text-muted dark:text-d-muted text-sm animate-pulse">Carregando histórico…</p>
+      )}
+
+      {!carregando && erro && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl2 p-4">
+          <p className="text-red-700 dark:text-red-400 text-sm">{erro}</p>
+        </div>
       )}
 
       {!carregando && dados.length === 0 && (
