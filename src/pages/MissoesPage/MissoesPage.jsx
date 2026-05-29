@@ -4,13 +4,17 @@ import { useAuth }    from '../../context/AuthContext'
 import { api }        from '../../services/api'
 import MissionCard    from '../../components/MissionCard/MissionCard'
 import { METAS, PONTOS_POR_MISSAO, MISSOES_CONFIG } from '../../data/constants'
+import PandaMascot    from '../../components/PandaMascot/PandaMascot'
+import { useVitalsWeather } from '../../hooks/useVitalsWeather'
 
 export default function MissoesPage() {
   const { refreshUsuario }        = useAuth()
+  const { estado } = useVitalsWeather()
   const [sincronizando, setSinc]  = useState(false)
   const [progresso,    setProg]   = useState(null)
   const [missoes,      setMissoes]= useState([])
   const [mensagem,     setMsg]    = useState(null)
+  const [missaoConcluida, setMissaoConcluida] = useState(false)
 
   async function carregarDados() {
     const [prog, miss] = await Promise.all([api.getProgresso(), api.getMissoes()])
@@ -43,6 +47,8 @@ export default function MissoesPage() {
       await carregarDados()
       await refreshUsuario()
       setMsg({ tipo: 'success', texto: `Missão "${chave}" concluída! Pontos adicionados.` })
+      setMissaoConcluida(true)
+      setTimeout(() => setMissaoConcluida(false), 1000)
     } catch (err) {
       setMsg({ tipo: 'error', texto: err.data?.erro || 'Erro ao concluir missão.' })
     }
@@ -53,6 +59,19 @@ export default function MissoesPage() {
 
   return (
     <div>
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <h1 className="font-sora font-bold text-2xl text-text dark:text-d-text">Missões</h1>
+          <p className="text-muted dark:text-d-muted text-sm mt-1">Complete suas metas diárias de saúde.</p>
+        </div>
+        <PandaMascot
+          healthState={estado}
+          pageContext="missoes"
+          size="md"
+          event={missaoConcluida ? 'mission_complete' : null}
+        />
+      </div>
+
       <header className="mb-6">
         <div className="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-muted dark:text-d-muted">Hoje</div>
         <h1 className="font-sora text-2xl font-extrabold text-text dark:text-d-text mt-0.5">Missões do Dia</h1>

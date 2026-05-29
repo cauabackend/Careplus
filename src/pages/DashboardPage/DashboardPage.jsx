@@ -6,9 +6,12 @@ import { api }         from '../../services/api'
 import StatCard        from '../../components/StatCard/StatCard'
 import MissionCard     from '../../components/MissionCard/MissionCard'
 import { METAS, PONTOS_POR_MISSAO, MISSOES_CONFIG } from '../../data/constants'
+import PandaMascot     from '../../components/PandaMascot/PandaMascot'
+import { useVitalsWeather } from '../../hooks/useVitalsWeather'
 
 export default function DashboardPage() {
   const { usuario, refreshUsuario } = useAuth()
+  const { estado } = useVitalsWeather()
   const [progresso, setProgresso]   = useState(null)
   const [missoes,   setMissoes]     = useState([])
 
@@ -38,6 +41,10 @@ export default function DashboardPage() {
           <p className="text-sm text-muted dark:text-d-muted mt-0.5 capitalize">{hoje}</p>
         </div>
       </header>
+
+      <div className="flex justify-center mb-4">
+        <PandaMascot healthState={estado} pageContext="dashboard" size="lg" />
+      </div>
 
       {/* Estatísticas */}
       <section aria-label="Estatísticas do usuário" className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
