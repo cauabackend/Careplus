@@ -1,42 +1,109 @@
-export default function MissionCard({ titulo, Icone, meta, atual, unidade, pontos, concluida, cor }) {
-  const pct     = Math.min(Math.round((atual / meta) * 100), 100)
-  const label   = unidade === 'L'      ? `${atual}L / ${meta}L`
-                : unidade === 'horas'  ? `${atual}h / ${meta}h`
-                : `${atual.toLocaleString('pt-BR')} / ${meta.toLocaleString('pt-BR')}`
+// src/components/MissionCard/MissionCard.jsx
+import { motion } from 'framer-motion'
+
+export default function MissionCard({ titulo, Icone, meta, atual, unidade, pontos, concluida }) {
+  const pct   = Math.min(Math.round((atual / meta) * 100), 100)
+  const label = unidade === 'L'     ? `${atual}L / ${meta}L`
+              : unidade === 'horas' ? `${atual}h / ${meta}h`
+              : `${atual.toLocaleString('pt-BR')} / ${meta.toLocaleString('pt-BR')}`
 
   return (
-    <article className="bg-card dark:bg-d-card border border-border dark:border-d-border rounded-2xl p-4 flex flex-col gap-3 transition-colors">
-      <header className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${cor}18` }}>
-            <Icone size={15} strokeWidth={2} style={{ color: cor }} />
+    <motion.article
+      whileHover={{ scale: 1.02, y: -2 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+      className="glass"
+      style={{
+        borderRadius: '18px',
+        padding: '18px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '14px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Brilho de fundo quando concluída */}
+      {concluida && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'var(--accent-soft)',
+          pointerEvents: 'none',
+        }} />
+      )}
+
+      {/* Cabeçalho */}
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '34px', height: '34px',
+            borderRadius: '10px',
+            background: 'var(--accent-soft)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <Icone size={16} strokeWidth={2} style={{ color: 'var(--accent)' }} />
           </div>
-          <span className="text-sm font-semibold text-text dark:text-d-text">{titulo}</span>
-        </div>
-        {concluida && (
-          <span className="text-[0.6rem] font-bold uppercase tracking-wider bg-cp-success/10 text-cp-success px-2 py-0.5 rounded-full">
-            ✓ Feito
+          <span style={{
+            fontSize: '0.85rem',
+            fontWeight: '700',
+            color: 'var(--text-primary)',
+          }}>
+            {titulo}
           </span>
+        </div>
+
+        {concluida && (
+          <div style={{
+            fontSize: '0.6rem',
+            fontWeight: '800',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--accent)',
+            background: 'var(--accent-soft)',
+            border: '1px solid var(--accent)',
+            borderRadius: '999px',
+            padding: '3px 10px',
+            flexShrink: 0,
+          }}>
+            Feito
+          </div>
         )}
       </header>
 
-      {/* Barra de progresso */}
+      {/* Progresso */}
       <div>
-        <div className="flex justify-between text-xs text-muted dark:text-d-muted mb-1">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          fontSize: '0.72rem',
+          color: 'var(--text-muted)',
+          marginBottom: '6px',
+        }}>
           <span>{label}</span>
-          <span>{pct}%</span>
+          <span style={{ color: pct >= 100 ? 'var(--accent)' : 'var(--text-muted)', fontWeight: 700 }}>
+            {pct}%
+          </span>
         </div>
-        <div className="h-1.5 bg-border dark:bg-d-border rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${pct}%`, background: cor }}
+
+        <div className="progress-bar">
+          <motion.div
+            className="progress-fill"
+            initial={{ width: '0%' }}
+            animate={{ width: `${pct}%` }}
+            transition={{ duration: 1, ease: [0.34, 1.56, 0.64, 1], delay: 0.1 }}
           />
         </div>
       </div>
 
-      <footer className="text-[0.65rem] font-semibold text-muted dark:text-d-muted">
+      {/* Rodapé */}
+      <footer style={{
+        fontSize: '0.65rem',
+        fontWeight: '600',
+        color: 'var(--text-muted)',
+        letterSpacing: '0.04em',
+      }}>
         +{pontos} pts ao completar
       </footer>
-    </article>
+    </motion.article>
   )
 }
