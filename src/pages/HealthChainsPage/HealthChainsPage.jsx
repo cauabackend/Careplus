@@ -1,51 +1,42 @@
+// src/pages/HealthChainsPage/HealthChainsPage.jsx
 import { useEffect, useState } from 'react'
+import { Link2, UserMinus, Send } from 'lucide-react'
 import { api } from '../../services/api'
-import { useVitalsWeather } from '../../hooks/useVitalsWeather'
-import PandaMascot from '../../components/PandaMascot/PandaMascot'
-import { Link2, UserMinus, UserPlus } from 'lucide-react'
+
+import PageTransition from '../../components/PageTransition/PageTransition'
 
 export default function HealthChainsPage() {
-  const [conexoes, setConexoes] = useState([])
-  const [eventos, setEventos] = useState([])
-  const [impacto, setImpacto] = useState(0)
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
-  const [emailNovo, setEmailNovo] = useState('')
+  const [conexoes,  setConexoes]      = useState([])
+  const [eventos,   setEventos]       = useState([])
+  const [impacto,   setImpacto]       = useState(0)
+  const [loading,   setLoading]       = useState(true)
+  const [emailNovo, setEmailNovo]     = useState('')
   const [adicionando, setAdicionando] = useState(false)
-  const [erroAdicionar, setErroAdicionar] = useState(null)
-  const { estado } = useVitalsWeather()
+  const [erroAdd,   setErroAdd]       = useState(null)
 
   async function carregarDados() {
     try {
-      const [c, e, i] = await Promise.all([
-        api.getConexoes(),
-        api.getEventos(),
-        api.getImpacto(),
-      ])
+      const [c, e, i] = await Promise.all([api.getConexoes(), api.getEventos(), api.getImpacto()])
       setConexoes(c)
-      setEventos(e)
-      setImpacto(i.total_beneficiados ?? 0)
-    } catch (err) {
-      console.error(err)
-      setErro('Não foi possível carregar as conexões. Tente novamente.')
-    } finally {
-      setCarregando(false)
-    }
+      setEventos(e.recebidos ?? [])
+      setImpacto(i.pessoas_beneficiadas ?? 0)
+    } catch {}
+    finally { setLoading(false) }
   }
 
   useEffect(() => { carregarDados() }, [])
 
-  async function handleAdicionar(e) {
-    e.preventDefault()
+  async function handleAdicionar(ev) {
+    ev.preventDefault()
     if (!emailNovo.trim()) return
     setAdicionando(true)
-    setErroAdicionar(null)
+    setErroAdd(null)
     try {
-      await api.criarConexao({ email: emailNovo.trim() })
+      await api.criarConexao({ destino_email: emailNovo.trim() })
       setEmailNovo('')
       await carregarDados()
     } catch (err) {
-      setErroAdicionar(err.data?.detail || 'Não foi possível adicionar este amigo.')
+      setErroAdd(err.data?.detail || err.data?.erro || 'Não foi possível adicionar este amigo.')
     } finally {
       setAdicionando(false)
     }
@@ -54,124 +45,222 @@ export default function HealthChainsPage() {
   async function handleRemover(id) {
     try {
       await api.removerConexao(id)
-      setConexoes((prev) => prev.filter((c) => c.id !== id))
-    } catch (err) {
-      console.error(err)
-    }
+      setConexoes(prev => prev.filter(c => c.id !== id))
+    } catch {}
   }
 
-  const nomeAmigo = (c) => c.destino?.first_name || c.destino?.username || 'Amigo'
-  const inicialAmigo = (c) => nomeAmigo(c).charAt(0).toUpperCase()
+  const nomeAmigo   = c => c.destino?.first_name || c.destino?.username || 'Amigo'
+  const inicialAmigo = c => nomeAmigo(c).charAt(0).toUpperCase()
 
   return (
-    <main className="flex flex-col gap-6" aria-label="Health Chains">
-      {/* Header */}
-      <header className="flex items-start gap-4">
-        <div className="flex-1">
-          <h1 className="font-sora font-bold text-2xl text-text dark:text-d-text">Health Chains</h1>
-          <p className="text-muted dark:text-d-muted text-sm mt-1">
-            Conecte-se com amigos e motivem-se mutuamente.
-          </p>
+    <PageTransition>
+      {/* Cabeçalho */}
+      <header style={{ marginBottom: '32px' }}>
+        <div style={{
+          fontSize: '0.6rem', fontWeight: '700',
+          letterSpacing: '0.22em', textTransform: 'uppercase',
+          color: 'var(--accent)', marginBottom: '4px',
+        }}>
+          Social
         </div>
-        <PandaMascot healthState={estado} pageContext="chains" size="md" />
+        <h1 style={{
+          fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+          fontWeight: '800',
+          color: 'var(--text-primary)',
+          letterSpacing: '-0.025em',
+        }}>
+          Health Chains
+        </h1>
+        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+          Conecte-se com amigos e motivem-se mutuamente.
+        </p>
       </header>
 
       {/* Impacto anual */}
-      <div className="bg-cp-navy rounded-xl2 p-4 flex items-center gap-3">
-        <Link2 className="text-cp-teal" size={22} />
+      <div
+        className="glass"
+        style={{
+          borderRadius: '18px', padding: '18px 22px',
+          display: 'flex', alignItems: 'center', gap: '16px',
+          marginBottom: '20px',
+          borderColor: 'var(--accent)',
+          background: 'var(--accent-soft)',
+        }}
+      >
+        <div style={{
+          width: '44px', height: '44px', borderRadius: '14px',
+          background: 'var(--accent-soft)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+          border: '1px solid var(--accent)',
+        }}>
+          <Link2 size={20} style={{ color: 'var(--accent)' }} />
+        </div>
         <div>
-          <p className="font-sora font-bold text-xl text-white">{impacto}</p>
-          <p className="text-white/60 text-xs">pessoas beneficiadas este ano</p>
+          <div style={{
+            fontSize: '1.6rem', fontWeight: '800',
+            color: 'var(--accent)', letterSpacing: '-0.02em', lineHeight: 1,
+          }}>
+            {impacto}
+          </div>
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+            pessoas beneficiadas este ano
+          </div>
         </div>
       </div>
 
       {/* Adicionar amigo */}
-      <section aria-label="Adicionar amigo">
-        <h2 className="font-sora font-semibold text-base text-text dark:text-d-text mb-2">Adicionar amigo</h2>
-        <form onSubmit={handleAdicionar} className="flex gap-2">
+      <section style={{ marginBottom: '24px' }}>
+        <div style={{
+          fontSize: '0.72rem', fontWeight: '700',
+          color: 'var(--text-muted)', letterSpacing: '0.08em',
+          marginBottom: '10px', textTransform: 'uppercase',
+        }}>
+          Adicionar amigo
+        </div>
+        <form onSubmit={handleAdicionar} style={{ display: 'flex', gap: '8px' }}>
           <input
             type="email"
             value={emailNovo}
-            onChange={(e) => setEmailNovo(e.target.value)}
-            placeholder="Email do amigo"
+            onChange={ev => setEmailNovo(ev.target.value)}
+            placeholder="email@amigo.com"
             aria-label="Email do amigo"
-            className="flex-1 rounded-lg border border-border dark:border-d-border bg-white dark:bg-d-card text-text dark:text-d-text px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cp-teal"
+            style={{
+              flex: 1,
+              background: 'var(--card-bg)',
+              border: '1px solid var(--card-border)',
+              borderRadius: '12px',
+              padding: '10px 14px',
+              color: 'var(--text-primary)',
+              fontSize: '0.82rem',
+              fontFamily: 'inherit',
+              outline: 'none',
+            }}
+            onFocus={ev => { ev.target.style.borderColor = 'var(--accent)' }}
+            onBlur={ev  => { ev.target.style.borderColor = 'var(--card-border)' }}
           />
           <button
             type="submit"
             disabled={adicionando}
-            className="flex items-center gap-1 bg-cp-teal text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-cp-teal/90 disabled:opacity-50 transition-colors"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: 'var(--accent)',
+              color: '#fff',
+              fontSize: '0.72rem', fontWeight: '800',
+              letterSpacing: '0.06em', textTransform: 'uppercase',
+              padding: '10px 16px', borderRadius: '12px', border: 'none',
+              cursor: adicionando ? 'not-allowed' : 'pointer',
+              opacity: adicionando ? 0.6 : 1,
+              fontFamily: 'inherit',
+              boxShadow: '0 0 12px var(--accent-glow)',
+              flexShrink: 0,
+            }}
           >
-            <UserPlus size={16} />
-            {adicionando ? 'Adicionando…' : 'Adicionar'}
+            <Send size={14} strokeWidth={2.5} />
+            {adicionando ? '...' : 'Adicionar'}
           </button>
         </form>
-        {erroAdicionar && (
-          <p className="text-red-600 dark:text-red-400 text-xs mt-1">{erroAdicionar}</p>
+        {erroAdd && (
+          <div style={{
+            fontSize: '0.75rem', color: '#FF3A3A', marginTop: '8px', fontWeight: '600',
+          }}>
+            {erroAdd}
+          </div>
         )}
       </section>
-
-      {/* Erros de carregamento */}
-      {erro && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl2 p-4">
-          <p className="text-red-700 dark:text-red-400 text-sm">{erro}</p>
-        </div>
-      )}
 
       {/* Lista de amigos */}
-      <section aria-label="Amigos conectados">
-        <h2 className="font-sora font-semibold text-base text-text dark:text-d-text mb-3">
+      <section style={{ marginBottom: '24px' }}>
+        <div style={{
+          fontSize: '0.72rem', fontWeight: '700',
+          color: 'var(--text-muted)', letterSpacing: '0.08em',
+          marginBottom: '10px', textTransform: 'uppercase',
+        }}>
           Amigos conectados ({conexoes.length})
-        </h2>
-        {carregando && <p className="text-muted dark:text-d-muted text-sm animate-pulse">Carregando…</p>}
-        {!carregando && conexoes.length === 0 && (
-          <p className="text-muted dark:text-d-muted text-sm">
-            Nenhum amigo conectado ainda. Adicione alguém pelo email!
-          </p>
+        </div>
+
+        {loading && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {[1, 2].map(i => (
+              <div key={i} className="shimmer-block glass" style={{ borderRadius: '14px', height: '60px' }} />
+            ))}
+          </div>
         )}
-        <ul className="flex flex-col gap-2">
-          {conexoes.map((c) => (
-            <li
-              key={c.id}
-              className="flex items-center gap-3 bg-white dark:bg-d-card rounded-xl2 border border-border dark:border-d-border p-3"
-            >
-              <div className="w-9 h-9 rounded-full bg-cp-teal/20 flex items-center justify-center">
-                <span className="font-sora font-bold text-cp-teal text-sm">{inicialAmigo(c)}</span>
-              </div>
-              <span className="flex-1 text-sm text-text dark:text-d-text font-medium">{nomeAmigo(c)}</span>
-              <button
-                onClick={() => handleRemover(c.id)}
-                aria-label={`Remover ${nomeAmigo(c)}`}
-                className="text-muted dark:text-d-muted hover:text-red-500 transition-colors"
+
+        {!loading && conexoes.length === 0 && (
+          <div className="glass" style={{
+            borderRadius: '16px', padding: '28px 20px', textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              Nenhum amigo conectado. Adicione alguém pelo email.
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {conexoes.map((c) => (
+              <div
+                key={c.id}
+                className="glass"
+                style={{
+                  borderRadius: '14px', padding: '12px 16px',
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  transition: 'opacity 0.2s',
+                }}
               >
-                <UserMinus size={16} />
-              </button>
-            </li>
-          ))}
-        </ul>
+                <div style={{
+                  width: '36px', height: '36px', borderRadius: '50%',
+                  background: 'var(--accent-soft)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, border: '1px solid var(--accent)',
+                }}>
+                  <span style={{ color: 'var(--accent)', fontWeight: '800', fontSize: '0.85rem' }}>
+                    {inicialAmigo(c)}
+                  </span>
+                </div>
+                <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                  {nomeAmigo(c)}
+                </span>
+                <button
+                  onClick={() => handleRemover(c.id)}
+                  aria-label={`Remover ${nomeAmigo(c)}`}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--text-muted)', padding: '4px', borderRadius: '8px',
+                    display: 'flex',
+                  }}
+                >
+                  <UserMinus size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
       </section>
 
-      {/* Eventos recebidos */}
+      {/* Atividade recente */}
       {eventos.length > 0 && (
-        <section aria-label="Eventos recebidos">
-          <h2 className="font-sora font-semibold text-base text-text dark:text-d-text mb-3">
+        <section>
+          <div style={{
+            fontSize: '0.72rem', fontWeight: '700',
+            color: 'var(--text-muted)', letterSpacing: '0.08em',
+            marginBottom: '10px', textTransform: 'uppercase',
+          }}>
             Atividade recente
-          </h2>
-          <ul className="flex flex-col gap-2">
-            {eventos.map((ev) => (
-              <li
-                key={ev.id}
-                className="text-sm text-muted dark:text-d-muted bg-white dark:bg-d-card rounded-xl2 border border-border dark:border-d-border px-3 py-2"
-              >
-                <span className="text-text dark:text-d-text font-medium">{ev.origem?.first_name || ev.origem?.username}</span>
-                {' completou '}
-                <span className="text-cp-teal font-medium">{ev.missao}</span>
-                {' e beneficiou você!'}
-              </li>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {eventos.map(ev => (
+              <div key={ev.id} className="glass" style={{ borderRadius: '14px', padding: '12px 16px' }}>
+                <span style={{ fontWeight: '700', color: 'var(--accent)' }}>
+                  {ev.origem?.first_name || ev.origem?.username}
+                </span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                  {' completou '}{ev.missao}{' e beneficiou você'}
+                </span>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
       )}
-    </main>
+    </PageTransition>
   )
 }
