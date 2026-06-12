@@ -1,148 +1,191 @@
 // src/pages/SentinelPage/SentinelPage.jsx
-import { useState, useEffect } from 'react';
-import { ShieldAlert } from 'lucide-react';
-import { api } from '../../services/api';
-import { useVitalsWeather } from '../../hooks/useVitalsWeather';
-import PandaMascot from '../../components/PandaMascot/PandaMascot';
+import { useState, useEffect } from 'react'
+import { Shield, ShieldAlert } from 'lucide-react'
+import { api } from '../../services/api'
+import { useVitalsWeatherCtx } from '../../context/VitalsWeatherContext'
+import PandaMascot from '../../components/PandaMascot/PandaMascot'
+import PageTransition from '../../components/PageTransition/PageTransition'
 
 const TIPO_LABEL = {
-  sleep_debt:     'Déficit de Sono',
-  hydration_low:  'Hidratação Baixa',
-  burnout_risk:   'Risco de Burnout',
-  streak_break:   'Streak em Risco',
-};
-
-const TIPO_STYLE = {
-  sleep_debt:    'text-blue-300 bg-blue-900/30 border-blue-700/40',
-  hydration_low: 'text-cyan-300 bg-cyan-900/30 border-cyan-700/40',
-  burnout_risk:  'text-red-300  bg-red-900/30  border-red-700/40',
-  streak_break:  'text-amber-300 bg-amber-900/30 border-amber-700/40',
-};
+  sleep_debt:    'Déficit de Sono',
+  hydration_low: 'Hidratação Baixa',
+  burnout_risk:  'Risco de Burnout',
+  streak_break:  'Streak em Risco',
+}
 
 export default function SentinelPage() {
-  const { estado } = useVitalsWeather();
-  const [alertas, setAlertas]       = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [pandaEvent, setPandaEvent] = useState('app_open');
+  const { estado }                = useVitalsWeatherCtx()
+  const [alertas, setAlertas]     = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [pandaEvent, setPEvent]   = useState('app_open')
 
-  const ativos = alertas.filter(a => !a.lido);
-  const lidos  = alertas.filter(a =>  a.lido);
+  const ativos = alertas.filter(a => !a.lido)
+  const lidos  = alertas.filter(a =>  a.lido)
 
   useEffect(() => {
     api.getSentinel()
       .then(data => {
-        setAlertas(data);
-        if (data.some(a => !a.lido)) {
-          setPandaEvent('alert_triggered');
-        }
+        setAlertas(data)
+        if (data.some(a => !a.lido)) setPEvent('alert_triggered')
       })
       .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => setLoading(false))
+  }, [])
 
-  const marcarLido = async (id) => {
+  async function marcarLido(id) {
     try {
-      await api.marcarAlertaLido(id);
-      setAlertas(prev =>
-        prev.map(a => (a.id === id ? { ...a, lido: true } : a))
-      );
-    } catch (err) {
-      console.error('Erro ao marcar alerta:', err);
-    }
-  };
+      await api.marcarAlertaLido(id)
+      setAlertas(prev => prev.map(a => a.id === id ? { ...a, lido: true } : a))
+    } catch {}
+  }
 
   return (
-    <main className="min-h-screen bg-cp-navy text-white p-6 max-w-2xl mx-auto">
-      <header className="flex items-start justify-between mb-8">
+    <PageTransition>
+      {/* Cabeçalho com panda */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-end',
+        justifyContent: 'space-between', gap: '16px',
+        marginBottom: '32px',
+      }}>
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <ShieldAlert className="w-5 h-5 text-cp-teal" />
-            <h1 className="text-2xl font-bold tracking-tight">SENTINEL</h1>
+          <div style={{
+            fontSize: '0.6rem', fontWeight: '700',
+            letterSpacing: '0.22em', textTransform: 'uppercase',
+            color: 'var(--accent)', marginBottom: '4px',
+            display: 'flex', alignItems: 'center', gap: '6px',
+          }}>
+            <ShieldAlert size={12} />
+            Sentinel
           </div>
-          <p className="text-white/40 text-sm">
-            Monitoramento inteligente dos últimos 14 dias
+          <h1 style={{
+            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+            fontWeight: '800',
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.025em',
+          }}>
+            Monitoramento
+          </h1>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+            Últimos 14 dias de padrões de saúde
           </p>
         </div>
-        <PandaMascot
-          healthState={ativos.length > 0 ? 'warning' : estado}
-          pageContext="sentinel"
-          event={pandaEvent}
-          size="sm"
-        />
-      </header>
+        <PandaMascot healthState={ativos.length > 0 ? 'warning' : estado} size="sm" event={pandaEvent} />
+      </div>
 
+      {/* Carregando */}
       {loading && (
-        <p className="text-white/40 text-sm">Analisando seus dados...</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} className="shimmer-block glass" style={{ borderRadius: '14px', height: '80px' }} />
+          ))}
+        </div>
       )}
 
+      {/* Vazio */}
       {!loading && ativos.length === 0 && (
         <div
-          className="text-center py-16 rounded-2xl border border-white/5 bg-white/3"
-          role="status"
-          aria-live="polite"
+          className="glass"
+          style={{
+            borderRadius: '20px',
+            padding: '48px 24px',
+            textAlign: 'center',
+            borderColor: 'var(--accent)',
+            background: 'var(--accent-soft)',
+          }}
         >
-          <p className="text-cp-success text-lg font-semibold">
-            Tudo certo por aqui!
-          </p>
-          <p className="text-white/40 text-sm mt-2">
+          <Shield size={36} style={{ color: 'var(--accent)', margin: '0 auto 12px' }} />
+          <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '6px' }}>
+            Tudo sob controle
+          </div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
             Nenhum alerta ativo nos últimos 14 dias.
-          </p>
+          </div>
         </div>
       )}
 
+      {/* Alertas ativos */}
       {ativos.length > 0 && (
-        <section aria-label="Alertas ativos" className="space-y-3 mb-8">
-          <h2 className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-3">
+        <section style={{ marginBottom: '28px' }}>
+          <div style={{
+            fontSize: '0.6rem', fontWeight: '700',
+            letterSpacing: '0.22em', textTransform: 'uppercase',
+            color: 'var(--text-muted)', marginBottom: '12px',
+          }}>
             {ativos.length} alerta{ativos.length > 1 ? 's' : ''} ativo{ativos.length > 1 ? 's' : ''}
-          </h2>
-          {ativos.map(alerta => (
-            <article
-              key={alerta.id}
-              className={`border rounded-xl p-4 flex items-start justify-between gap-4 ${
-                TIPO_STYLE[alerta.tipo] ?? 'text-white/70 bg-white/5 border-white/10'
-              }`}
-            >
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">
-                  {TIPO_LABEL[alerta.tipo] ?? alerta.tipo}
-                </p>
-                <p className="text-xs opacity-75 mt-1 leading-relaxed">
-                  {alerta.mensagem}
-                </p>
-              </div>
-              <button
-                onClick={() => marcarLido(alerta.id)}
-                className="text-xs px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors whitespace-nowrap flex-shrink-0"
-              >
-                Marcar lido
-              </button>
-            </article>
-          ))}
-        </section>
-      )}
-
-      {lidos.length > 0 && (
-        <section aria-label="Alertas anteriores">
-          <h2 className="text-white/25 text-xs font-semibold uppercase tracking-widest mb-3">
-            Anteriores
-          </h2>
-          <div className="space-y-2">
-            {lidos.map(alerta => (
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {ativos.map(alerta => (
               <article
                 key={alerta.id}
-                className="border border-white/5 rounded-xl p-3 opacity-35"
+                className="glass"
+                style={{
+                  borderRadius: '16px',
+                  padding: '16px 18px',
+                  display: 'flex', alignItems: 'flex-start',
+                  justifyContent: 'space-between', gap: '12px',
+                  borderColor: 'var(--accent)',
+                  background: 'var(--accent-soft)',
+                  transition: 'opacity 0.25s',
+                }}
               >
-                <p className="text-xs font-medium">
-                  {TIPO_LABEL[alerta.tipo] ?? alerta.tipo}
-                </p>
-                <p className="text-xs opacity-70 mt-0.5">
-                  {alerta.mensagem}
-                </p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: '0.82rem', fontWeight: '700',
+                    color: 'var(--accent)', marginBottom: '4px',
+                  }}>
+                    {TIPO_LABEL[alerta.tipo] ?? alerta.tipo}
+                  </div>
+                  <div style={{ fontSize: '0.77rem', color: 'var(--text-muted)', lineHeight: 1.45 }}>
+                    {alerta.mensagem}
+                  </div>
+                </div>
+                <button
+                  onClick={() => marcarLido(alerta.id)}
+                  style={{
+                    fontSize: '0.68rem', fontWeight: '700',
+                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                    padding: '6px 12px', borderRadius: '999px',
+                    border: '1px solid var(--accent)',
+                    background: 'transparent',
+                    color: 'var(--accent)',
+                    cursor: 'pointer', flexShrink: 0,
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  Lido
+                </button>
               </article>
             ))}
           </div>
         </section>
       )}
-    </main>
-  );
+
+      {/* Alertas lidos */}
+      {lidos.length > 0 && (
+        <section>
+          <div style={{
+            fontSize: '0.6rem', fontWeight: '700',
+            letterSpacing: '0.22em', textTransform: 'uppercase',
+            color: 'var(--text-faint)', marginBottom: '10px',
+          }}>
+            Anteriores
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {lidos.map(alerta => (
+              <div key={alerta.id} className="glass" style={{
+                borderRadius: '14px', padding: '12px 16px', opacity: 0.4,
+              }}>
+                <div style={{ fontSize: '0.78rem', fontWeight: '600', color: 'var(--text-muted)', marginBottom: '2px' }}>
+                  {TIPO_LABEL[alerta.tipo] ?? alerta.tipo}
+                </div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  {alerta.mensagem}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </PageTransition>
+  )
 }
