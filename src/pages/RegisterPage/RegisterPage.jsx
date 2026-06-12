@@ -1,11 +1,35 @@
+// src/pages/RegisterPage/RegisterPage.jsx
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { api } from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
+import PandaMascot from '../../components/PandaMascot/PandaMascot'
+
+const inputStyle = {
+  width: '100%',
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.10)',
+  borderRadius: '12px',
+  padding: '11px 14px',
+  color: 'var(--text-primary)',
+  fontSize: '0.82rem',
+  fontFamily: 'inherit',
+  outline: 'none',
+  transition: 'border-color 0.18s',
+  boxSizing: 'border-box',
+}
+
+const labelStyle = {
+  display: 'block',
+  fontSize: '0.6rem', fontWeight: '700',
+  letterSpacing: '0.18em', textTransform: 'uppercase',
+  color: 'var(--text-muted)', marginBottom: '5px',
+}
 
 export default function RegisterPage({ onSwitchToLogin }) {
   const { login } = useAuth()
-  const [form, setForm]       = useState({ first_name: '', username: '', email: '', password: '' })
-  const [erro, setErro]       = useState(null)
+  const [form,    setForm]    = useState({ first_name: '', username: '', email: '', password: '' })
+  const [erro,    setErro]    = useState(null)
   const [loading, setLoading] = useState(false)
 
   function handleChange(e) {
@@ -27,64 +51,141 @@ export default function RegisterPage({ onSwitchToLogin }) {
     }
   }
 
-  const inputClass = 'w-full rounded-xl border border-border dark:border-d-border bg-bg dark:bg-d-bg text-text dark:text-d-text px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-cp-teal transition'
-  const labelClass = 'block text-xs font-semibold text-muted dark:text-d-muted mb-1 uppercase tracking-wide'
-
   return (
-    <main className="min-h-screen flex items-center justify-center bg-bg dark:bg-d-bg px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="text-[0.65rem] font-bold tracking-[0.3em] uppercase text-muted dark:text-d-muted mb-1">
+    <div
+      className="app-bg vw-good"
+      style={{
+        minHeight: '100dvh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px 16px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Partículas */}
+      {[10, 30, 55, 75, 90].map((left, i) => (
+        <div
+          key={i}
+          className="particle"
+          style={{ left: `${left}%`, bottom: 0, '--delay': `${i * 1.8}s`, '--dur': '14s' }}
+        />
+      ))}
+
+      <motion.div
+        initial={{ opacity: 1, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
+        style={{ width: '100%', maxWidth: '360px', position: 'relative', zIndex: 1 }}
+      >
+        {/* Panda + logo */}
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <PandaMascot healthState="good" size="sm" />
+          <div style={{
+            fontSize: '0.6rem', fontWeight: '700',
+            letterSpacing: '0.28em', textTransform: 'uppercase',
+            color: 'var(--accent)', marginTop: '10px', marginBottom: '4px',
+          }}>
             CarePlus+
           </div>
-          <h1 className="font-sora text-3xl font-extrabold text-text dark:text-d-text">
+          <h1 style={{
+            fontSize: '1.6rem', fontWeight: '800',
+            color: 'var(--text-primary)', letterSpacing: '-0.03em',
+          }}>
             Criar conta
           </h1>
-          <p className="text-sm text-muted dark:text-d-muted mt-1">
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
             Comece sua jornada de saúde hoje
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-card dark:bg-d-card border border-border dark:border-d-border rounded-2xl p-6 space-y-4">
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="glass"
+          style={{ borderRadius: '20px', padding: '22px' }}
+        >
           {erro && (
-            <div role="alert" className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
+            <motion.div
+              initial={{ opacity: 1, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              role="alert"
+              style={{
+                fontSize: '0.78rem', fontWeight: '600',
+                background: 'rgba(255,58,58,0.12)',
+                border: '1px solid rgba(255,58,58,0.3)',
+                color: '#FF3A3A',
+                borderRadius: '10px', padding: '10px 14px',
+                marginBottom: '14px',
+              }}
+            >
               {erro}
-            </div>
+            </motion.div>
           )}
 
-          <div>
-            <label htmlFor="first_name" className={labelClass}>Nome</label>
-            <input id="first_name" name="first_name" type="text" required value={form.first_name} onChange={handleChange} className={inputClass} />
-          </div>
-          <div>
-            <label htmlFor="username" className={labelClass}>Usuário</label>
-            <input id="username" name="username" type="text" required autoComplete="username" value={form.username} onChange={handleChange} className={inputClass} />
-          </div>
-          <div>
-            <label htmlFor="email" className={labelClass}>E-mail</label>
-            <input id="email" name="email" type="email" required value={form.email} onChange={handleChange} className={inputClass} />
-          </div>
-          <div>
-            <label htmlFor="password" className={labelClass}>Senha (mín. 6 caracteres)</label>
-            <input id="password" name="password" type="password" required minLength={6} autoComplete="new-password" value={form.password} onChange={handleChange} className={inputClass} />
-          </div>
+          {[
+            { id: 'first_name', label: 'Nome',     type: 'text',     autocomplete: 'given-name' },
+            { id: 'username',   label: 'Usuário',   type: 'text',     autocomplete: 'username'   },
+            { id: 'email',      label: 'E-mail',    type: 'email',    autocomplete: 'email'      },
+            { id: 'password',   label: 'Senha (mín. 6)',type:'password', autocomplete: 'new-password'},
+          ].map(field => (
+            <div key={field.id} style={{ marginBottom: '12px' }}>
+              <label htmlFor={field.id} style={labelStyle}>{field.label}</label>
+              <input
+                id={field.id}
+                name={field.id}
+                type={field.type}
+                required
+                minLength={field.id === 'password' ? 6 : undefined}
+                autoComplete={field.autocomplete}
+                value={form[field.id]}
+                onChange={handleChange}
+                style={inputStyle}
+                onFocus={e => { e.target.style.borderColor = 'var(--accent)' }}
+                onBlur={e  => { e.target.style.borderColor = 'rgba(255,255,255,0.10)' }}
+              />
+            </div>
+          ))}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-cp-teal hover:bg-[#00a8c4] disabled:opacity-60 text-white font-semibold rounded-full py-2.5 text-sm transition-colors"
+            style={{
+              width: '100%',
+              background: 'var(--accent)',
+              color: '#fff',
+              fontSize: '0.78rem', fontWeight: '800',
+              letterSpacing: '0.08em', textTransform: 'uppercase',
+              padding: '12px', borderRadius: '999px', border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.65 : 1,
+              fontFamily: 'inherit',
+              boxShadow: '0 0 20px var(--accent-glow)',
+              marginTop: '4px',
+            }}
           >
-            {loading ? 'Criando conta…' : 'Criar conta'}
+            {loading ? 'Criando...' : 'Criar conta'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-muted dark:text-d-muted mt-4">
-          Já tem conta?{' '}
-          <button onClick={onSwitchToLogin} className="text-cp-teal font-semibold hover:underline">
+        <p style={{
+          textAlign: 'center', fontSize: '0.8rem',
+          color: 'var(--text-muted)', marginTop: '14px',
+        }}>
+          Ja tem conta?{' '}
+          <button
+            onClick={onSwitchToLogin}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--accent)', fontWeight: '700',
+              fontFamily: 'inherit', fontSize: 'inherit',
+            }}
+          >
             Entrar
           </button>
         </p>
-      </div>
-    </main>
+      </motion.div>
+    </div>
   )
 }
