@@ -9,14 +9,13 @@ import DashboardPage    from './pages/DashboardPage/DashboardPage'
 import MissoesPage      from './pages/MissoesPage/MissoesPage'
 import PerfilPage       from './pages/PerfilPage/PerfilPage'
 import PrivacidadePage  from './pages/PrivacidadePage/PrivacidadePage'
-
-// Páginas de gamificação (criadas no Plano 3)
 import ChroniclePage    from './pages/ChroniclePage/ChroniclePage'
+import PreviewPage      from './pages/PreviewPage/PreviewPage'
 import SentinelPage     from './pages/SentinelPage/SentinelPage'
 import HealthChainsPage from './pages/HealthChainsPage/HealthChainsPage'
 
 function AuthGate() {
-  const [tela, setTela] = useState('login')   // 'login' | 'register'
+  const [tela, setTela] = useState('login')
   if (tela === 'login')
     return <LoginPage    onSwitchToRegister={() => setTela('register')} />
   return       <RegisterPage onSwitchToLogin={()    => setTela('login')}    />
@@ -38,6 +37,7 @@ export default function App() {
           <Route path="chains"      element={<HealthChainsPage />} />
           <Route path="perfil"      element={<PerfilPage       />} />
           <Route path="privacidade" element={<PrivacidadePage  />} />
+          <Route path="preview"    element={<PreviewPage      />} />
           <Route path="*"           element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
