@@ -35,6 +35,7 @@ export function scoreParaEstado(score) {
   if (score >= 75) return 'excellent';
   if (score >= 50) return 'good';
   if (score >= 25) return 'warning';
+  if (score >= 10) return 'weak';
   return 'critical';
 }
 
@@ -47,8 +48,13 @@ export function useVitalsWeather() {
   const [estado, setEstado]   = useState('good');
   const [score, setScore]     = useState(0);
   const [loading, setLoading] = useState(true);
+  const [tick,    setTick]    = useState(0);
+
+  // Call refresh() to force a re-fetch (e.g. after sync or mission complete)
+  const refresh = () => setTick(t => t + 1);
 
   useEffect(() => {
+    setLoading(true);
     api.getProgresso()
       .then(progresso => {
         const s = calcularScore(progresso);
@@ -60,7 +66,7 @@ export function useVitalsWeather() {
         setScore(0);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [tick]);
 
-  return { estado, score, loading };
+  return { estado, score, loading, refresh };
 }
