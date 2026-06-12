@@ -1,38 +1,45 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    './index.html',
-    './src/**/*.{js,jsx,ts,tsx}',
-  ],
-  darkMode: ['selector', '[data-theme="dark"]'],
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
-      colors: {
-        'cp-teal':    '#00BFDF',
-        'cp-teal-lt': '#E6F9FC',
-        'cp-navy':    '#0B2454',
-        'cp-navy-2':  '#1A3E7A',
-        'cp-orange':  '#F97316',
-        'cp-success': '#10B981',
-        'cp-gold':    '#F59E0B',
-        'bg':         '#EEF3FD',
-        'card':       '#FFFFFF',
-        'border':     '#DDE7F5',
-        'text':       '#0B1222',
-        'muted':      '#617390',
-        'd-bg':       '#050C1B',
-        'd-card':     '#0D1628',
-        'd-border':   '#182338',
-        'd-text':     '#E2ECF8',
-        'd-muted':    '#6B88B8',
-      },
       fontFamily: {
-        sora:   ['Sora', 'system-ui', 'sans-serif'],
-        dm:     ['DM Sans', 'system-ui', 'sans-serif'],
+        jakarta: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        'xl2': '1rem',
-        'xl3': '1.25rem',
+        '2xl': '1rem',
+        '3xl': '1.5rem',
+      },
+      keyframes: {
+        shimmer: {
+          '0%':   { backgroundPosition: '-600px 0' },
+          '100%': { backgroundPosition: '600px 0' },
+        },
+        float: {
+          '0%,100%': { transform: 'translateY(0)' },
+          '50%':     { transform: 'translateY(-14px)' },
+        },
+        breathe: {
+          '0%,100%': { transform: 'scale(1)' },
+          '50%':     { transform: 'scale(1.025)' },
+        },
+        aurora: {
+          '0%':   { transform: 'translateX(-30%) skewY(-3deg)', opacity: '0' },
+          '20%':  { opacity: '0.7' },
+          '80%':  { opacity: '0.45' },
+          '100%': { transform: 'translateX(30%) skewY(-3deg)', opacity: '0' },
+        },
+        dotPulse: {
+          '0%,100%': { transform: 'scale(1)', opacity: '1' },
+          '50%':     { transform: 'scale(1.25)', opacity: '0.6' },
+        },
+      },
+      animation: {
+        shimmer:    'shimmer 1.6s linear infinite',
+        float:      'float 4s ease-in-out infinite',
+        breathe:    'breathe 3s ease-in-out infinite',
+        aurora:     'aurora 12s linear infinite',
+        dotPulse:   'dotPulse 2.5s ease-in-out infinite',
       },
     },
   },
