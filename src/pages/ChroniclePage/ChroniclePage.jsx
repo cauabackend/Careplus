@@ -1,97 +1,164 @@
+// src/pages/ChroniclePage/ChroniclePage.jsx
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { api } from '../../services/api'
-import { useVitalsWeather } from '../../hooks/useVitalsWeather'
+import PageTransition from '../../components/PageTransition/PageTransition'
 import PandaMascot from '../../components/PandaMascot/PandaMascot'
+import { useVitalsWeatherCtx } from '../../context/VitalsWeatherContext'
 
-const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+               'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
 
-function BookPage({ entry }) {
+function MonthCard({ entry, index }) {
   const { mes, dias_ativos, total_dias, densidade } = entry
   const nomeMes = MESES[mes - 1] || `Mês ${mes}`
-  // Render lines representing days; active days are filled
-  const lines = Array.from({ length: total_dias }, (_, i) => i < dias_ativos)
+  const pct     = Math.round(densidade * 100)
 
   return (
-    <article className="bg-white dark:bg-d-card rounded-xl2 border border-border dark:border-d-border p-5 flex flex-col gap-3 shadow-sm">
-      <header className="flex items-center justify-between">
-        <h3 className="font-sora font-semibold text-base text-text dark:text-d-text">{nomeMes}</h3>
-        <span className="text-xs text-muted dark:text-d-muted">{dias_ativos}/{total_dias} dias</span>
+    <motion.article
+      initial={{ opacity: 1, y: 12 }}
+      animate={{ opacity: 1, y: 0  }}
+      transition={{ delay: index * 0.06, duration: 0.3 }}
+      whileHover={{ scale: 1.02, y: -2 }}
+      className="glass"
+      style={{ borderRadius: '18px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}
+    >
+      {/* Cabeçalho */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h3 style={{ fontSize: '0.92rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+          {nomeMes}
+        </h3>
+        <span style={{ fontSize: '0.68rem', fontWeight: '600', color: 'var(--text-muted)' }}>
+          {dias_ativos}/{total_dias} dias
+        </span>
       </header>
-      <div className="grid grid-cols-6 gap-1" aria-label={`Dias ativos em ${nomeMes}`}>
-        {lines.map((ativo, idx) => (
+
+      {/* Grid de dias */}
+      <div
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}
+        aria-label={`Dias ativos em ${nomeMes}`}
+      >
+        {Array.from({ length: total_dias }, (_, i) => (
           <div
-            key={idx}
-            className={`h-2 rounded-full transition-colors ${ativo ? 'bg-cp-teal' : 'bg-border dark:bg-d-border'}`}
-            aria-label={ativo ? 'Dia ativo' : 'Dia inativo'}
+            key={i}
+            style={{
+              height: '8px',
+              borderRadius: '3px',
+              background: i < dias_ativos ? 'var(--accent)' : 'rgba(255,255,255,0.08)',
+              boxShadow: i < dias_ativos ? '0 0 4px var(--accent-glow)' : 'none',
+              transition: 'background 0.3s',
+            }}
           />
         ))}
       </div>
-      <div className="flex items-center gap-2">
-        <div
-          className="h-1.5 rounded-full bg-cp-teal transition-all"
-          style={{ width: `${Math.round(densidade * 100)}%` }}
-          aria-label={`Densidade: ${Math.round(densidade * 100)}%`}
-        />
-        <span className="text-xs text-muted dark:text-d-muted ml-auto">{Math.round(densidade * 100)}%</span>
+
+      {/* Barra de densidade */}
+      <div>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          fontSize: '0.65rem', color: 'var(--text-muted)',
+          marginBottom: '5px', fontWeight: '600',
+          letterSpacing: '0.06em',
+        }}>
+          <span>Densidade</span>
+          <span style={{ color: 'var(--accent)' }}>{pct}%</span>
+        </div>
+        <div className="progress-bar" style={{ height: '5px' }}>
+          <motion.div
+            className="progress-fill"
+            initial={{ width: 0 }}
+            animate={{ width: `${pct}%` }}
+            transition={{ duration: 0.9, ease: [0.34, 1.56, 0.64, 1], delay: index * 0.06 + 0.2 }}
+          />
+        </div>
       </div>
-    </article>
+    </motion.article>
   )
 }
 
 export default function ChroniclePage() {
-  const [dados, setDados] = useState([])
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
-  const { estado } = useVitalsWeather()
+  const { estado } = useVitalsWeatherCtx()
+  const [dados,     setDados]     = useState([])
+  const [loading,   setLoading]   = useState(true)
+  const [erro,      setErro]      = useState(null)
 
   useEffect(() => {
     api.getChronicle()
       .then(setDados)
-      .catch((e) => {
-        console.error(e)
-        setErro('Não foi possível carregar o histórico. Tente novamente.')
-      })
-      .finally(() => setCarregando(false))
+      .catch(() => setErro('Não foi possível carregar o histórico.'))
+      .finally(() => setLoading(false))
   }, [])
 
   return (
-    <main className="flex flex-col gap-6" aria-label="The Chronicle">
-      <header className="flex items-start gap-4">
-        <div className="flex-1">
-          <h1 className="font-sora font-bold text-2xl text-text dark:text-d-text">The Chronicle</h1>
-          <p className="text-muted dark:text-d-muted text-sm mt-1">
-            Seu histórico de saúde mês a mês — cada linha é um dia ativo.
+    <PageTransition>
+      {/* Cabeçalho */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-end',
+        justifyContent: 'space-between', gap: '16px',
+        marginBottom: '32px',
+      }}>
+        <header>
+          <div style={{
+            fontSize: '0.6rem', fontWeight: '700',
+            letterSpacing: '0.22em', textTransform: 'uppercase',
+            color: 'var(--accent)', marginBottom: '4px',
+          }}>
+            Histórico
+          </div>
+          <h1 style={{
+            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+            fontWeight: '800',
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.025em',
+          }}>
+            The Chronicle
+          </h1>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+            Seu histórico de saúde mês a mês — cada quadrado é um dia.
           </p>
-        </div>
-        <PandaMascot healthState={estado} pageContext="chronicle" size="md" />
-      </header>
+        </header>
+        <PandaMascot healthState={estado} pose="chronicle" size="sm" />
+      </div>
 
-      {carregando && (
-        <p className="text-muted dark:text-d-muted text-sm animate-pulse">Carregando histórico…</p>
-      )}
-
-      {!carregando && erro && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl2 p-4">
-          <p className="text-red-700 dark:text-red-400 text-sm">{erro}</p>
-        </div>
-      )}
-
-      {!carregando && dados.length === 0 && (
-        <div className="bg-white dark:bg-d-card rounded-xl2 border border-border dark:border-d-border p-8 text-center">
-          <p className="text-muted dark:text-d-muted">Nenhuma entrada ainda. Complete suas primeiras missões!</p>
-        </div>
-      )}
-
-      {!carregando && dados.length > 0 && (
-        <section
-          className="grid gap-4 sm:grid-cols-2"
-          aria-label="Páginas do Chronicle"
-        >
-          {dados.map((entry) => (
-            <BookPage key={`${entry.ano}-${entry.mes}`} entry={entry} />
+      {/* Estados */}
+      {loading && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="shimmer-block glass" style={{ borderRadius: '18px', height: '160px' }} />
           ))}
-        </section>
+        </div>
       )}
-    </main>
+
+      {!loading && erro && (
+        <div className="glass" style={{
+          borderRadius: '16px', padding: '20px',
+          borderColor: '#FF3A3A', background: 'rgba(255,58,58,0.08)',
+          color: '#FF3A3A', fontSize: '0.82rem', fontWeight: '600',
+        }}>
+          {erro}
+        </div>
+      )}
+
+      {!loading && !erro && dados.length === 0 && (
+        <div className="glass" style={{
+          borderRadius: '20px', padding: '48px 24px', textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '6px' }}>
+            Nenhuma entrada ainda
+          </div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+            Complete suas primeiras missões para ver o histórico.
+          </div>
+        </div>
+      )}
+
+      {!loading && dados.length > 0 && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+          {dados.map((entry, i) => (
+            <MonthCard key={`${entry.ano}-${entry.mes}`} entry={entry} index={i} />
+          ))}
+        </div>
+      )}
+    </PageTransition>
   )
 }
