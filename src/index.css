@@ -1,27 +1,273 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  * { box-sizing: border-box; }
+/* ============================================================
+   CarePlus+ V2  —  Dark Health Game
+   Toda a identidade visual usa --accent, que muda com o
+   estado de saúde (Vitals Weather). NADA fica fixo em azul.
+   ============================================================ */
 
-  body {
-    @apply font-dm bg-bg dark:bg-d-bg text-text dark:text-d-text min-h-screen;
-    background-image:
-      radial-gradient(ellipse 65% 55% at 85% -5%, rgba(0,191,223,0.07) 0%, transparent 100%),
-      radial-gradient(ellipse 45% 65% at 15% 105%, rgba(11,36,84,0.05) 0%, transparent 100%);
-    background-attachment: fixed;
-    -webkit-font-smoothing: antialiased;
-    transition: background-color 0.35s, color 0.35s;
-  }
+:root {
+  /* Vitals Weather: excelente (padrão) */
+  --accent:      #37C3FF;
+  --accent-soft: rgba(55, 195, 255, 0.12);
+  --accent-glow: rgba(55, 195, 255, 0.30);
+  --bg-a:        #091540;
+  --bg-b:        #040b1e;
 
-  h1, h2, h3, h4, h5, h6 { @apply font-sora; }
+  /* Texto */
+  --text-primary: #E2ECF8;
+  --text-muted:   #6B88B8;
+  --text-faint:   rgba(226, 236, 248, 0.28);
+
+  /* Superfícies glass */
+  --card-bg:      rgba(13, 22, 40, 0.72);
+  --card-border:  rgba(255, 255, 255, 0.07);
+  --card-hover:   rgba(255, 255, 255, 0.04);
 }
 
-@layer components {
-  .sidebar-scroll::-webkit-scrollbar { width: 4px; }
-  .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
-  .sidebar-scroll::-webkit-scrollbar-thumb { @apply bg-white/10 rounded-full; }
+/* ── Vitals Weather state classes (aplicadas no root div do DashboardLayout) ── */
+.vw-excellent {
+  --accent:      #37C3FF;
+  --accent-soft: rgba(55, 195, 255, 0.12);
+  --accent-glow: rgba(55, 195, 255, 0.28);
+  --bg-a:        #091540;
+  --bg-b:        #040b1e;
 }
+.vw-good {
+  --accent:      #2DD75F;
+  --accent-soft: rgba(45, 215, 95, 0.12);
+  --accent-glow: rgba(45, 215, 95, 0.28);
+  --bg-a:        #062812;
+  --bg-b:        #031408;
+}
+.vw-warning {
+  --accent:      #FFA023;
+  --accent-soft: rgba(255, 160, 35, 0.12);
+  --accent-glow: rgba(255, 160, 35, 0.28);
+  --bg-a:        #2a1604;
+  --bg-b:        #160a02;
+}
+.vw-weak {
+  --accent:      #8B7EBD;
+  --accent-soft: rgba(139, 126, 189, 0.12);
+  --accent-glow: rgba(139, 126, 189, 0.28);
+  --bg-a:        #12102a;
+  --bg-b:        #09070f;
+}
+.vw-critical {
+  --accent:      #FF3A3A;
+  --accent-soft: rgba(255, 58, 58, 0.12);
+  --accent-glow: rgba(255, 58, 58, 0.28);
+  --bg-a:        #2a0808;
+  --bg-b:        #160404;
+}
+
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: var(--bg-b);
+  color: var(--text-primary);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ── App shell background (fullscreen radial) ── */
+.app-bg {
+  min-height: 100dvh;
+  background: radial-gradient(ellipse 140% 120% at 22% 58%, var(--bg-a), var(--bg-b) 72%);
+  transition: background 1.1s ease;
+}
+
+/* ── Glass card ── */
+.glass {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.glass:hover { border-color: var(--accent-soft); }
+
+/* ── Accent utilities (tudo usa --accent, nada fixo) ── */
+.accent-text   { color: var(--accent); }
+.accent-border { border-color: var(--accent); }
+.accent-bg     { background: var(--accent-soft); }
+.accent-glow   { box-shadow: 0 0 20px var(--accent-glow); }
+
+/* ── Shimmer skeleton ── */
+.shimmer-block {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.04) 100%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+/* ── Spin utility ── */
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* ── Dot pulse (FloatingNav, sync indicator) ── */
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--accent-soft), 0 0 20px var(--accent-glow); }
+  50%       { box-shadow: 0 0 0 6px var(--accent-soft), 0 0 32px var(--accent-glow); }
+}
+
+/* ── Panda animations ── */
+.panda-float   { animation: float   4s ease-in-out infinite; }
+.panda-breathe { animation: breathe 3s ease-in-out infinite; }
+@keyframes bubbleIn {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.85) translateY(8px); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1)    translateY(0);   }
+}
+@keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+@keyframes breathe { 0%,100%{transform:scale(1)}      50%{transform:scale(1.025)}      }
+@keyframes zzz     {
+  0%   { opacity:0; transform:translate(0,0) scale(.5); }
+  40%  { opacity:1; }
+  100% { opacity:0; transform:translate(-12px,-56px) scale(1.3); }
+}
+@keyframes zzz2    {
+  0%   { opacity:0; transform:translate(0,0) scale(.4); }
+  40%  { opacity:.6; }
+  100% { opacity:0; transform:translate(-7px,-40px) scale(.9); }
+}
+
+/* ── Atmospheric particles ── */
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* excellent: cyan orbs floating up */
+.vw-excellent .particle {
+  width: 5px; height: 5px;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  animation: partRise var(--dur, 14s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes partRise {
+  0%   { transform: translateY(20px) scale(.5); opacity: 0; }
+  15%  { opacity: .8; }
+  85%  { opacity: .5; }
+  100% { transform: translateY(-110vh) translateX(30px) scale(1.1); opacity: 0; }
+}
+
+/* good: leaf-shaped falling */
+.vw-good .particle {
+  width: 4px; height: 12px;
+  border-radius: 1px 60% 1px 60%;
+  background: var(--accent);
+  animation: partFall var(--dur, 14s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes partFall {
+  0%   { transform: translateY(-10vh) rotate(15deg); opacity: 0; }
+  15%  { opacity: .9; }
+  100% { transform: translateY(110vh) translateX(-20px) rotate(15deg); opacity: 0; }
+}
+
+/* warning: amber fog blobs */
+.vw-warning .particle {
+  width: 60px; height: 60px;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+  filter: blur(8px);
+  animation: partDrift var(--dur, 20s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes partDrift {
+  0%   { transform: translate(0,0) scale(.8); opacity: 0; }
+  20%  { opacity: .5; }
+  80%  { opacity: .35; }
+  100% { transform: translate(80px,-60vh) scale(1.3); opacity: 0; }
+}
+
+/* weak: dim drifting dust */
+.vw-weak .particle {
+  width: 3px; height: 3px;
+  background: var(--accent);
+  opacity: 0.5;
+  animation: partDust var(--dur, 18s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes partDust {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+  25%  { opacity: 0.45; }
+  75%  { opacity: 0.25; }
+  100% { transform: translate(14px, -18vh) scale(0.6); opacity: 0; }
+}
+
+/* critical: dark rain */
+.vw-critical .particle {
+  width: 2px; height: 18px;
+  border-radius: 1px;
+  background: linear-gradient(180deg, transparent, var(--accent));
+  animation: partRain var(--dur, 10s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes partRain {
+  0%   { transform: translateY(-10vh); opacity: 0; }
+  10%  { opacity: .8; }
+  100% { transform: translateY(115vh) translateX(-30px); opacity: 0; }
+}
+
+/* ── Aurora bands (excellent only) ── */
+.aurora-band {
+  position: absolute;
+  left: -30%; width: 160%; height: 200px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--accent-glow) 35%,
+    rgba(255,255,255,0.10) 50%,
+    var(--accent-glow) 65%,
+    transparent 100%);
+  filter: blur(40px);
+  opacity: 0;
+  transform: skewY(-3deg);
+  animation: aurora 12s linear infinite;
+}
+.vw-excellent .aurora-band { opacity: 1; }
+.aurora-band.b1 { top: 10%; animation-delay: 0s; }
+.aurora-band.b2 { top: 38%; animation-delay: -4s; height: 160px; }
+.aurora-band.b3 { top: 65%; animation-delay: -8s; height: 240px; }
+
+@keyframes aurora {
+  0%   { transform: translateX(-25%) skewY(-3deg); opacity: 0; }
+  20%  { opacity: .6; }
+  80%  { opacity: .4; }
+  100% { transform: translateX(25%) skewY(-3deg); opacity: 0; }
+}
+
+/* ── Progress bar (accent-colored) ── */
+.progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, white));
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Scrollbar minimal ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.10); border-radius: 4px; }
