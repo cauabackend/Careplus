@@ -1,41 +1,59 @@
-import { useState, useEffect } from 'react'
-import { HeartPulse, RefreshCw } from 'lucide-react'
+// src/pages/MissoesPage/MissoesPage.jsx
+import { useState, useEffect, useRef } from 'react'
+import { RefreshCw, Check } from 'lucide-react'
 import { useAuth }    from '../../context/AuthContext'
 import { api }        from '../../services/api'
 import MissionCard    from '../../components/MissionCard/MissionCard'
-import { METAS, PONTOS_POR_MISSAO, MISSOES_CONFIG } from '../../data/constants'
 import PandaMascot    from '../../components/PandaMascot/PandaMascot'
-import { useVitalsWeather } from '../../hooks/useVitalsWeather'
+import PageTransition from '../../components/PageTransition/PageTransition'
+import { METAS, PONTOS_POR_MISSAO, MISSOES_CONFIG } from '../../data/constants'
+import { useVitalsWeatherCtx } from '../../context/VitalsWeatherContext'
 
 export default function MissoesPage() {
   const { refreshUsuario }        = useAuth()
-  const { estado } = useVitalsWeather()
+  const { estado, refresh: refreshVitals } = useVitalsWeatherCtx()
   const [sincronizando, setSinc]  = useState(false)
   const [progresso,    setProg]   = useState(null)
   const [missoes,      setMissoes]= useState([])
   const [mensagem,     setMsg]    = useState(null)
-  const [missaoConcluida, setMissaoConcluida] = useState(false)
+  const [loading,      setLoading]= useState(true)
+  const [eventoPanda,  setEvento] = useState(null)
+  const msgTimerRef               = useRef(null)
 
-  async function carregarDados() {
-    const [prog, miss] = await Promise.all([api.getProgresso(), api.getMissoes()])
-    setProg(prog)
-    setMissoes(miss)
+  function mostrarMsg(tipo, texto) {
+    if (msgTimerRef.current) clearTimeout(msgTimerRef.current)
+    setMsg({ tipo, texto })
+    msgTimerRef.current = setTimeout(() => setMsg(null), 3500)
   }
 
-  useEffect(() => { carregarDados() }, [])
+  async function carregarDados() {
+    try {
+      const [prog, miss] = await Promise.all([api.getProgresso(), api.getMissoes()])
+      setProg(prog ?? null)
+      setMissoes(Array.isArray(miss) ? miss : (miss?.results ?? []))
+    } catch {
+      // silently keep previous state
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    carregarDados()
+    return () => { if (msgTimerRef.current) clearTimeout(msgTimerRef.current) }
+  }, [])
 
   async function sincronizar() {
     setSinc(true)
-    setMsg(null)
     try {
-      // Simula busca do Google Health (mock)
       const { buscarDadosSaude } = await import('../../services/mockHealthApi')
       const dados = await buscarDadosSaude()
       await api.salvarProgresso({ passos: dados.passos, agua: dados.agua, sono: dados.sono, fonte: dados.fonte })
       await carregarDados()
-      setMsg({ tipo: 'success', texto: 'Dados sincronizados com sucesso!' })
+      refreshVitals()
+      mostrarMsg('success', 'Dados sincronizados com sucesso.')
     } catch {
-      setMsg({ tipo: 'error', texto: 'Erro ao sincronizar. Tente novamente.' })
+      mostrarMsg('error', 'Erro ao sincronizar. Tente novamente.')
     } finally {
       setSinc(false)
     }
@@ -46,106 +64,195 @@ export default function MissoesPage() {
       await api.concluirMissao({ chave_missao: chave })
       await carregarDados()
       await refreshUsuario()
-      setMsg({ tipo: 'success', texto: `Missão "${chave}" concluída! Pontos adicionados.` })
-      setMissaoConcluida(true)
-      setTimeout(() => setMissaoConcluida(false), 1000)
+      refreshVitals()
+      mostrarMsg('success', 'Missão concluída! Pontos adicionados.')
+      setEvento('mission_complete')
+      setTimeout(() => setEvento(null), 700)
     } catch (err) {
-      setMsg({ tipo: 'error', texto: err.data?.erro || 'Erro ao concluir missão.' })
+      mostrarMsg('error', err.data?.erro || 'Erro ao concluir missão.')
     }
   }
 
-  const dados           = progresso ?? { passos: 0, agua: 0, sono: 0 }
-  const missoesConcluidas = missoes.map(m => m.chave_missao)
+  const dados = {
+    passos: progresso?.passos ?? 0,
+    agua:   progresso?.agua   ?? 0,
+    sono:   progresso?.sono   ?? 0,
+  }
+  const missoesConcluidas = Array.isArray(missoes) ? missoes.map(m => m.chave_missao) : []
 
   return (
-    <div>
-      <div className="flex items-start justify-between gap-4 mb-4">
+    <PageTransition>
+      {/* Cabeçalho com panda */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-end',
+        justifyContent: 'space-between', gap: '16px',
+        marginBottom: '32px',
+      }}>
         <div>
-          <h1 className="font-sora font-bold text-2xl text-text dark:text-d-text">Missões</h1>
-          <p className="text-muted dark:text-d-muted text-sm mt-1">Complete suas metas diárias de saúde.</p>
+          <div style={{
+            fontSize: '0.6rem', fontWeight: '700',
+            letterSpacing: '0.22em', textTransform: 'uppercase',
+            color: 'var(--accent)', marginBottom: '4px',
+          }}>
+            Hoje
+          </div>
+          <h1 style={{
+            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
+            fontWeight: '800',
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.025em',
+          }}>
+            Missões
+          </h1>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+            Complete suas metas diárias de saúde.
+          </p>
         </div>
         <PandaMascot
           healthState={estado}
-          pageContext="missoes"
-          size="md"
-          event={missaoConcluida ? 'mission_complete' : null}
+          pose={missoesConcluidas.length > 0 ? 'missions-dance' : 'missions-point'}
+          size="sm"
+          event={eventoPanda}
         />
       </div>
 
-      <header className="mb-6">
-        <div className="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-muted dark:text-d-muted">Hoje</div>
-        <h1 className="font-sora text-2xl font-extrabold text-text dark:text-d-text mt-0.5">Missões do Dia</h1>
-        <p className="text-sm text-muted dark:text-d-muted mt-1">
-          Sincronize com o Google Health para importar seus dados.
-        </p>
-      </header>
-
       {/* Barra de sync */}
-      <div className="bg-card dark:bg-d-card border border-border dark:border-d-border rounded-2xl p-4 flex items-center gap-3 mb-4">
-        {sincronizando
-          ? <div className="w-5 h-5 rounded-full border-2 border-cp-teal border-t-transparent animate-spin flex-shrink-0" />
-          : <HeartPulse size={20} strokeWidth={1.75} className="text-cp-teal flex-shrink-0" />
-        }
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-text dark:text-d-text">
-            {sincronizando ? 'Sincronizando…' : 'Google Health'}
+      <div className="glass" style={{
+        borderRadius: '16px', padding: '14px 18px',
+        display: 'flex', alignItems: 'center', gap: '12px',
+        marginBottom: '20px',
+      }}>
+        <div style={{
+          width: '8px', height: '8px', borderRadius: '50%',
+          background: sincronizando ? 'var(--accent)' : 'var(--text-muted)',
+          boxShadow: sincronizando ? '0 0 8px var(--accent)' : 'none',
+          flexShrink: 0,
+          transition: 'background 0.3s, box-shadow 0.3s',
+        }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontSize: '0.82rem', fontWeight: '700',
+            color: 'var(--text-primary)',
+          }}>
+            {sincronizando ? 'Sincronizando...' : 'Google Health'}
           </div>
-          <div className="text-xs text-muted dark:text-d-muted truncate">
-            {progresso ? `Sync realizado — ${dados.passos.toLocaleString('pt-BR')} passos` : 'Nenhuma sincronização hoje'}
+          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {progresso
+              ? `Atualizado — ${dados.passos.toLocaleString('pt-BR')} passos`
+              : 'Nenhuma sincronização hoje'}
           </div>
         </div>
         <button
           onClick={sincronizar}
           disabled={sincronizando}
-          className="flex items-center gap-1.5 bg-cp-teal hover:bg-[#00a8c4] disabled:opacity-60 text-white text-xs font-semibold rounded-full px-4 py-2 transition-colors flex-shrink-0"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '6px',
+            background: 'var(--accent)',
+            color: '#fff',
+            fontSize: '0.7rem', fontWeight: '800',
+            letterSpacing: '0.06em', textTransform: 'uppercase',
+            padding: '8px 16px', borderRadius: '999px', border: 'none',
+            cursor: sincronizando ? 'not-allowed' : 'pointer',
+            opacity: sincronizando ? 0.55 : 1,
+            flexShrink: 0,
+            fontFamily: 'inherit',
+            boxShadow: '0 0 12px var(--accent-glow)',
+            transition: 'opacity 0.18s',
+          }}
         >
-          <RefreshCw size={13} strokeWidth={2} />
-          {sincronizando ? 'Aguarde…' : 'Sincronizar'}
+          <RefreshCw
+            size={13}
+            strokeWidth={2.5}
+            style={{ animation: sincronizando ? 'spin 1s linear infinite' : 'none' }}
+          />
+          {sincronizando ? 'Aguarde' : 'Sincronizar'}
         </button>
       </div>
 
-      {/* Alerta */}
+      {/* Mensagem (auto-dismiss) */}
       {mensagem && (
         <div
           role="alert"
-          className={`text-sm rounded-xl px-4 py-3 mb-4 ${
-            mensagem.tipo === 'success'
-              ? 'bg-cp-success/10 text-cp-success border border-cp-success/20'
-              : 'bg-red-500/10 text-red-500 border border-red-500/20'
-          }`}
+          style={{
+            fontSize: '0.8rem', fontWeight: '600',
+            borderRadius: '12px', padding: '12px 16px',
+            marginBottom: '16px',
+            background: mensagem.tipo === 'success' ? 'rgba(45,215,95,0.12)' : 'rgba(255,58,58,0.12)',
+            color:      mensagem.tipo === 'success' ? '#2DD75F'              : '#FF3A3A',
+            border:     `1px solid ${mensagem.tipo === 'success' ? 'rgba(45,215,95,0.3)' : 'rgba(255,58,58,0.3)'}`,
+            transition: 'opacity 0.3s',
+          }}
         >
           {mensagem.texto}
         </div>
       )}
 
+      {/* Shimmer loading */}
+      {loading && (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+          gap: '12px',
+        }}>
+          {MISSOES_CONFIG.map((_, i) => (
+            <div
+              key={i}
+              className="shimmer-block glass"
+              style={{ borderRadius: '18px', height: '140px' }}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Cards de missão */}
-      <section aria-label="Missões do dia" className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {MISSOES_CONFIG.map(({ chave, titulo, Icone, unidade, cor }) => {
-          const concluida = missoesConcluidas.includes(chave)
-          return (
-            <div key={chave} className="flex flex-col gap-2">
-              <MissionCard
-                titulo={titulo}
-                Icone={Icone}
-                meta={METAS[chave]}
-                atual={dados[chave] ?? 0}
-                unidade={unidade}
-                pontos={PONTOS_POR_MISSAO[chave]}
-                concluida={concluida}
-                cor={cor}
-              />
-              {!concluida && progresso && dados[chave] >= METAS[chave] && (
-                <button
-                  onClick={() => concluirMissao(chave)}
-                  className="w-full bg-cp-success/10 hover:bg-cp-success/20 text-cp-success text-xs font-semibold rounded-full py-2 transition-colors"
-                >
-                  ✓ Marcar como concluída (+{PONTOS_POR_MISSAO[chave]} pts)
-                </button>
-              )}
-            </div>
-          )
-        })}
-      </section>
-    </div>
+      {!loading && (
+        <section aria-label="Missões do dia" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
+          gap: '12px',
+        }}>
+          {MISSOES_CONFIG.map(({ chave, titulo, Icone, unidade }) => {
+            const concluida = missoesConcluidas.includes(chave)
+            const atingida  = progresso && (dados[chave] ?? 0) >= METAS[chave]
+            return (
+              <div key={chave} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <MissionCard
+                  titulo={titulo}
+                  Icone={Icone}
+                  meta={METAS[chave]}
+                  atual={dados[chave] ?? 0}
+                  unidade={unidade}
+                  pontos={PONTOS_POR_MISSAO[chave]}
+                  concluida={concluida}
+                />
+                {!concluida && atingida && (
+                  <button
+                    onClick={() => concluirMissao(chave)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                      width: '100%', padding: '10px',
+                      background: 'var(--accent-soft)',
+                      border: '1px solid var(--accent)',
+                      borderRadius: '12px',
+                      color: 'var(--accent)',
+                      fontSize: '0.72rem', fontWeight: '800',
+                      letterSpacing: '0.06em', textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      transition: 'background 0.18s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = '#fff' }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'var(--accent-soft)'; e.currentTarget.style.color = 'var(--accent)' }}
+                  >
+                    <Check size={14} strokeWidth={3} />
+                    Concluir (+{PONTOS_POR_MISSAO[chave]} pts)
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </section>
+      )}
+    </PageTransition>
   )
 }
