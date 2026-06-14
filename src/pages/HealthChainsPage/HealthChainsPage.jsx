@@ -55,105 +55,61 @@ export default function HealthChainsPage() {
   return (
     <PageTransition>
       {/* Cabeçalho */}
-      <header style={{ marginBottom: '32px' }}>
-        <div style={{
-          fontSize: '0.6rem', fontWeight: '700',
-          letterSpacing: '0.22em', textTransform: 'uppercase',
-          color: 'var(--accent)', marginBottom: '4px',
-        }}>
+      <header className="mb-8">
+        <div className="text-[0.6rem] font-bold tracking-[0.22em] uppercase text-[var(--accent)] mb-1">
           Social
         </div>
-        <h1 style={{
-          fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-          fontWeight: '800',
-          color: 'var(--text-primary)',
-          letterSpacing: '-0.025em',
-        }}>
+        <h1 className="text-[clamp(1.5rem,4vw,2rem)] font-extrabold text-[var(--text-primary)] tracking-[-0.025em]">
           Health Chains
         </h1>
-        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+        <p className="text-[0.8rem] text-[var(--text-muted)] mt-1">
           Conecte-se com amigos e motivem-se mutuamente.
         </p>
       </header>
 
       {/* Impacto anual */}
       <div
-        className="glass"
-        style={{
-          borderRadius: '18px', padding: '18px 22px',
-          display: 'flex', alignItems: 'center', gap: '16px',
-          marginBottom: '20px',
-          borderColor: 'var(--accent)',
-          background: 'var(--accent-soft)',
-        }}
+        className="glass rounded-[18px] py-[18px] px-[22px] flex items-center gap-4 mb-5 !border-[var(--accent)] bg-[var(--accent-soft)]"
       >
-        <div style={{
-          width: '44px', height: '44px', borderRadius: '14px',
-          background: 'var(--accent-soft)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0,
-          border: '1px solid var(--accent)',
-        }}>
-          <Link2 size={20} style={{ color: 'var(--accent)' }} />
+        <div className="w-11 h-11 rounded-[14px] bg-[var(--accent-soft)] flex items-center justify-center flex-shrink-0 border border-[var(--accent)]">
+          <Link2 size={20} className="text-[var(--accent)]" />
         </div>
         <div>
-          <div style={{
-            fontSize: '1.6rem', fontWeight: '800',
-            color: 'var(--accent)', letterSpacing: '-0.02em', lineHeight: 1,
-          }}>
+          <div className="text-[1.6rem] font-extrabold text-[var(--accent)] tracking-[-0.02em] leading-none">
             {impacto}
           </div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: '600' }}>
+          <div className="text-[0.72rem] text-[var(--text-muted)] font-semibold">
             pessoas beneficiadas este ano
           </div>
         </div>
       </div>
 
       {/* Adicionar amigo */}
-      <section style={{ marginBottom: '24px' }}>
-        <div style={{
-          fontSize: '0.72rem', fontWeight: '700',
-          color: 'var(--text-muted)', letterSpacing: '0.08em',
-          marginBottom: '10px', textTransform: 'uppercase',
-        }}>
+      <section className="mb-6">
+        <div className="text-[0.72rem] font-bold text-[var(--text-muted)] tracking-[0.08em] mb-2.5 uppercase">
           Adicionar amigo
         </div>
-        <form onSubmit={handleAdicionar} style={{ display: 'flex', gap: '8px' }}>
+        <form onSubmit={handleAdicionar} className="flex gap-2">
           <input
             type="email"
             value={emailNovo}
             onChange={ev => setEmailNovo(ev.target.value)}
             placeholder="email@amigo.com"
             aria-label="Email do amigo"
-            style={{
-              flex: 1,
-              background: 'var(--card-bg)',
-              border: '1px solid var(--card-border)',
-              borderRadius: '12px',
-              padding: '10px 14px',
-              color: 'var(--text-primary)',
-              fontSize: '0.82rem',
-              fontFamily: 'inherit',
-              outline: 'none',
-            }}
+            className="flex-1 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-xl py-2.5 px-3.5 text-[var(--text-primary)] text-[0.82rem] outline-none"
+            style={{ fontFamily: 'inherit' }}
             onFocus={ev => { ev.target.style.borderColor = 'var(--accent)' }}
             onBlur={ev  => { ev.target.style.borderColor = 'var(--card-border)' }}
           />
           <button
             type="submit"
             disabled={adicionando}
+            className="flex items-center gap-1.5 bg-[var(--accent)] text-[#fff] text-[0.72rem] font-extrabold tracking-[0.06em] uppercase py-2.5 px-4 rounded-xl border-none flex-shrink-0"
             style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              background: 'var(--accent)',
-              color: '#fff',
-              fontSize: '0.72rem', fontWeight: '800',
-              letterSpacing: '0.06em', textTransform: 'uppercase',
-              padding: '10px 16px', borderRadius: '12px', border: 'none',
               cursor: adicionando ? 'not-allowed' : 'pointer',
               opacity: adicionando ? 0.6 : 1,
               fontFamily: 'inherit',
               boxShadow: '0 0 12px var(--accent-glow)',
-              flexShrink: 0,
             }}
           >
             <Send size={14} strokeWidth={2.5} />
@@ -161,74 +117,55 @@ export default function HealthChainsPage() {
           </button>
         </form>
         {erroAdd && (
-          <div style={{
-            fontSize: '0.75rem', color: '#FF3A3A', marginTop: '8px', fontWeight: '600',
-          }}>
+          <div className="text-[0.75rem] text-[#FF3A3A] mt-2 font-semibold">
             {erroAdd}
           </div>
         )}
       </section>
 
       {/* Lista de amigos */}
-      <section style={{ marginBottom: '24px' }}>
-        <div style={{
-          fontSize: '0.72rem', fontWeight: '700',
-          color: 'var(--text-muted)', letterSpacing: '0.08em',
-          marginBottom: '10px', textTransform: 'uppercase',
-        }}>
+      <section className="mb-6">
+        <div className="text-[0.72rem] font-bold text-[var(--text-muted)] tracking-[0.08em] mb-2.5 uppercase">
           Amigos conectados ({conexoes.length})
         </div>
 
         {loading && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="flex flex-col gap-2">
             {[1, 2].map(i => (
-              <div key={i} className="shimmer-block glass" style={{ borderRadius: '14px', height: '60px' }} />
+              <div key={i} className="shimmer-block glass rounded-[14px] h-[60px]" />
             ))}
           </div>
         )}
 
         {!loading && conexoes.length === 0 && (
-          <div className="glass" style={{
-            borderRadius: '16px', padding: '28px 20px', textAlign: 'center',
-          }}>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+          <div className="glass rounded-2xl py-7 px-5 text-center">
+            <div className="text-[0.85rem] text-[var(--text-muted)]">
               Nenhum amigo conectado. Adicione alguém pelo email.
             </div>
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="flex flex-col gap-2">
             {conexoes.map((c) => (
               <div
                 key={c.id}
-                className="glass"
+                className="glass rounded-[14px] py-3 px-4 flex items-center gap-3"
                 style={{
-                  borderRadius: '14px', padding: '12px 16px',
-                  display: 'flex', alignItems: 'center', gap: '12px',
                   transition: 'opacity 0.2s',
                 }}
               >
-                <div style={{
-                  width: '36px', height: '36px', borderRadius: '50%',
-                  background: 'var(--accent-soft)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0, border: '1px solid var(--accent)',
-                }}>
-                  <span style={{ color: 'var(--accent)', fontWeight: '800', fontSize: '0.85rem' }}>
+                <div className="w-9 h-9 rounded-full bg-[var(--accent-soft)] flex items-center justify-center flex-shrink-0 border border-[var(--accent)]">
+                  <span className="text-[var(--accent)] font-extrabold text-[0.85rem]">
                     {inicialAmigo(c)}
                   </span>
                 </div>
-                <span style={{ flex: 1, fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)' }}>
+                <span className="flex-1 text-[0.85rem] font-bold text-[var(--text-primary)]">
                   {nomeAmigo(c)}
                 </span>
                 <button
                   onClick={() => handleRemover(c.id)}
                   aria-label={`Remover ${nomeAmigo(c)}`}
-                  style={{
-                    background: 'none', border: 'none', cursor: 'pointer',
-                    color: 'var(--text-muted)', padding: '4px', borderRadius: '8px',
-                    display: 'flex',
-                  }}
+                  className="bg-transparent border-none cursor-pointer text-[var(--text-muted)] p-1 rounded-lg flex"
                 >
                   <UserMinus size={16} />
                 </button>
@@ -240,20 +177,16 @@ export default function HealthChainsPage() {
       {/* Atividade recente */}
       {eventos.length > 0 && (
         <section>
-          <div style={{
-            fontSize: '0.72rem', fontWeight: '700',
-            color: 'var(--text-muted)', letterSpacing: '0.08em',
-            marginBottom: '10px', textTransform: 'uppercase',
-          }}>
+          <div className="text-[0.72rem] font-bold text-[var(--text-muted)] tracking-[0.08em] mb-2.5 uppercase">
             Atividade recente
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="flex flex-col gap-2">
             {eventos.map(ev => (
-              <div key={ev.id} className="glass" style={{ borderRadius: '14px', padding: '12px 16px' }}>
-                <span style={{ fontWeight: '700', color: 'var(--accent)' }}>
+              <div key={ev.id} className="glass rounded-[14px] py-3 px-4">
+                <span className="font-bold text-[var(--accent)]">
                   {ev.origem?.first_name || ev.origem?.username}
                 </span>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                <span className="text-[var(--text-muted)] text-[0.8rem]">
                   {' completou '}{ev.missao}{' e beneficiou você'}
                 </span>
               </div>

@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { api } from '../../services/api'
 import PageTransition from '../../components/PageTransition/PageTransition'
 import PandaMascot from '../../components/PandaMascot/PandaMascot'
+import CalendarHeatmap from '../../components/CalendarHeatmap/CalendarHeatmap'
 import { useVitalsWeatherCtx } from '../../context/VitalsWeatherContext'
 
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
@@ -16,54 +17,39 @@ function MonthCard({ entry, index }) {
 
   return (
     <motion.article
-      initial={{ opacity: 1, y: 12 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0  }}
       transition={{ delay: index * 0.06, duration: 0.3 }}
-      whileHover={{ scale: 1.02, y: -2 }}
-      className="glass"
-      style={{ borderRadius: '18px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}
+      whileHover={{ y: -2, borderColor: 'var(--accent)' }}
+      className="glass rounded-lg p-5 flex flex-col gap-3.5"
     >
       {/* Cabeçalho */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '0.92rem', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+      <header className="flex justify-between items-center">
+        <h3 className="text-[0.92rem] font-extrabold text-[var(--text-primary)] tracking-[-0.01em]">
           {nomeMes}
         </h3>
-        <span style={{ fontSize: '0.68rem', fontWeight: '600', color: 'var(--text-muted)' }}>
+        <span className="text-[0.68rem] font-semibold text-[var(--text-muted)]">
           {dias_ativos}/{total_dias} dias
         </span>
       </header>
 
-      {/* Grid de dias */}
-      <div
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}
-        aria-label={`Dias ativos em ${nomeMes}`}
-      >
-        {Array.from({ length: total_dias }, (_, i) => (
-          <div
-            key={i}
-            style={{
-              height: '8px',
-              borderRadius: '3px',
-              background: i < dias_ativos ? 'var(--accent)' : 'rgba(255,255,255,0.08)',
-              boxShadow: i < dias_ativos ? '0 0 4px var(--accent-glow)' : 'none',
-              transition: 'background 0.3s',
-            }}
-          />
-        ))}
+      {/* Calendário do mês — heatmap alinhado pelo dia da semana real */}
+      <div aria-label={`Dias ativos em ${nomeMes}: ${dias_ativos} de ${total_dias}`}>
+        <CalendarHeatmap
+          startWeekday={(() => { const d = new Date(entry.ano, mes - 1, 1); return isNaN(d) ? 0 : d.getDay() })()}
+          values={Array.from({ length: total_dias }, (_, i) => (i < dias_ativos ? 1 : 0))}
+          cell={22}
+          gap={5}
+        />
       </div>
 
       {/* Barra de densidade */}
       <div>
-        <div style={{
-          display: 'flex', justifyContent: 'space-between',
-          fontSize: '0.65rem', color: 'var(--text-muted)',
-          marginBottom: '5px', fontWeight: '600',
-          letterSpacing: '0.06em',
-        }}>
+        <div className="flex justify-between text-[0.65rem] text-[var(--text-muted)] mb-[5px] font-semibold tracking-[0.06em]">
           <span>Densidade</span>
-          <span style={{ color: 'var(--accent)' }}>{pct}%</span>
+          <span className="text-[var(--accent)]">{pct}%</span>
         </div>
-        <div className="progress-bar" style={{ height: '5px' }}>
+        <div className="progress-bar h-[5px]">
           <motion.div
             className="progress-fill"
             initial={{ width: 0 }}
@@ -92,28 +78,15 @@ export default function ChroniclePage() {
   return (
     <PageTransition>
       {/* Cabeçalho */}
-      <div style={{
-        display: 'flex', alignItems: 'flex-end',
-        justifyContent: 'space-between', gap: '16px',
-        marginBottom: '32px',
-      }}>
+      <div className="flex items-end justify-between gap-4 mb-8">
         <header>
-          <div style={{
-            fontSize: '0.6rem', fontWeight: '700',
-            letterSpacing: '0.22em', textTransform: 'uppercase',
-            color: 'var(--accent)', marginBottom: '4px',
-          }}>
+          <div className="text-[0.6rem] font-bold tracking-[0.22em] uppercase text-[var(--accent)] mb-1">
             Histórico
           </div>
-          <h1 style={{
-            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-            fontWeight: '800',
-            color: 'var(--text-primary)',
-            letterSpacing: '-0.025em',
-          }}>
+          <h1 className="text-[clamp(1.5rem,4vw,2rem)] font-extrabold text-[var(--text-primary)] tracking-[-0.025em]">
             The Chronicle
           </h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+          <p className="text-[0.8rem] text-[var(--text-muted)] mt-1">
             Seu histórico de saúde mês a mês — cada quadrado é um dia.
           </p>
         </header>
@@ -122,38 +95,32 @@ export default function ChroniclePage() {
 
       {/* Estados */}
       {loading && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+        <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="shimmer-block glass" style={{ borderRadius: '18px', height: '160px' }} />
+            <div key={i} className="shimmer-block glass rounded-[18px] h-40" />
           ))}
         </div>
       )}
 
       {!loading && erro && (
-        <div className="glass" style={{
-          borderRadius: '16px', padding: '20px',
-          borderColor: '#FF3A3A', background: 'rgba(255,58,58,0.08)',
-          color: '#FF3A3A', fontSize: '0.82rem', fontWeight: '600',
-        }}>
+        <div className="glass rounded-2xl p-5 text-[0.82rem] font-semibold !border-[#FF3A3A] bg-[rgba(255,58,58,0.08)] text-[#FF3A3A]">
           {erro}
         </div>
       )}
 
       {!loading && !erro && dados.length === 0 && (
-        <div className="glass" style={{
-          borderRadius: '20px', padding: '48px 24px', textAlign: 'center',
-        }}>
-          <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '6px' }}>
+        <div className="glass rounded-[20px] py-12 px-6 text-center">
+          <div className="text-base font-bold text-[var(--text-primary)] mb-1.5">
             Nenhuma entrada ainda
           </div>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          <div className="text-[0.8rem] text-[var(--text-muted)]">
             Complete suas primeiras missões para ver o histórico.
           </div>
         </div>
       )}
 
       {!loading && dados.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+        <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
           {dados.map((entry, i) => (
             <MonthCard key={`${entry.ano}-${entry.mes}`} entry={entry} index={i} />
           ))}

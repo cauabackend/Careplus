@@ -2,14 +2,18 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Star, Zap, Award, CheckCircle2, ArrowRight } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { useAuth }         from '../../context/AuthContext'
 import { api }             from '../../services/api'
 import StatCard            from '../../components/StatCard/StatCard'
 import MissionCard         from '../../components/MissionCard/MissionCard'
 import PandaMascot         from '../../components/PandaMascot/PandaMascot'
+import Gauge               from '../../components/Gauge/Gauge'
+import TrendChart          from '../../components/TrendChart/TrendChart'
+import BarChart            from '../../components/BarChart/BarChart'
 import PageTransition      from '../../components/PageTransition/PageTransition'
 import { METAS, PONTOS_POR_MISSAO, MISSOES_CONFIG } from '../../data/constants'
+import { escolherFala } from '../../data/pandaFalas'
+import { calcularScore } from '../../hooks/useVitalsWeather'
 import { useVitalsWeatherCtx } from '../../context/VitalsWeatherContext'
 
 const ESTADO_LABEL = {
@@ -20,20 +24,16 @@ const ESTADO_LABEL = {
   critical:  'Crítico',
 }
 
-const SENTINEL_SPEECH = {
-  excellent: 'Tudo perfeito! Continue assim e vire lenda.',
-  good:      'Indo bem. Feche as missões de hoje.',
-  warning:   'Relaxa, mas não esqueça das metas.',
-  weak:      'Seus padrões estão irregulares. Cuida-se!',
-  critical:  'Alerta! Seus dados precisam de atenção urgente.',
-}
+const DOW = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S']  // getDay(): 0=domingo
 
-function shimmerStyle() {
-  return {
-    borderRadius: '18px',
-    height: '80px',
-    overflow: 'hidden',
-  }
+// Cabeçalho de card de gráfico (eyebrow + métrica)
+function VizHead({ esq, dir }) {
+  return (
+    <div className="flex justify-between items-center mb-2">
+      <span className="text-[0.6rem] font-bold tracking-[0.18em] uppercase text-[var(--text-muted)]">{esq}</span>
+      {dir != null && <span className="text-[0.72rem] font-bold text-[var(--accent)]">{dir}</span>}
+    </div>
+  )
 }
 
 export default function DashboardPage() {
@@ -41,9 +41,10 @@ export default function DashboardPage() {
   const { estado, score, loading: weatherLoading } = useVitalsWeatherCtx()
   const [progresso, setProgresso] = useState(null)
   const [missoes,   setMissoes]   = useState([])
-  const [alertas,   setAlertas]   = useState([])
   const [loadingData, setLoading] = useState(true)
   const [pandaEvent, setPandaEvent] = useState(null)
+  const [fala,       setFala]       = useState('')
+  const [historico,  setHistorico]  = useState([])
 
   const hoje = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long', day: 'numeric', month: 'long',
@@ -53,11 +54,11 @@ export default function DashboardPage() {
     Promise.all([
       api.getProgresso().catch(() => null),
       api.getMissoes().catch(() => []),
-      api.getSentinel().catch(() => []),
-    ]).then(([prog, miss, al]) => {
+      api.getHistorico().catch(() => []),
+    ]).then(([prog, miss, hist]) => {
       setProgresso(prog)
       setMissoes(Array.isArray(miss) ? miss : (miss?.results ?? []))
-      setAlertas(Array.isArray(al) ? al : (al?.results ?? []))
+      setHistorico(Array.isArray(hist) ? hist : (hist?.results ?? []))
       setLoading(false)
     })
     refreshUsuario()
@@ -67,6 +68,22 @@ export default function DashboardPage() {
     return () => clearTimeout(t)
   }, [refreshUsuario])
 
+  // Voz do panda (Sentinel + personalidade): fala ao abrir e renova a cada 32s
+  // (tempo de ler), sempre contextual ao estado, horário e streak. Evita repetir
+  // a fala anterior para não parecer "travado".
+  useEffect(() => {
+    const ctx = () => ({ estado, hora: new Date().getHours(), streak: usuario?.streak ?? 0 })
+    setFala(escolherFala(ctx()))
+    const id = setInterval(() => {
+      setFala(prev => {
+        let nova = escolherFala(ctx())
+        for (let i = 0; i < 4 && nova === prev; i++) nova = escolherFala(ctx())
+        return nova
+      })
+    }, 32000)
+    return () => clearInterval(id)
+  }, [estado, usuario?.streak])
+
   if (!usuario) return null
 
   const dados = {
@@ -75,45 +92,43 @@ export default function DashboardPage() {
     sono:   progresso?.sono   ?? 0,
   }
   const missoesConcluidas = Array.isArray(missoes) ? missoes.map(m => m.chave_missao) : []
-  const alertaNaoLido     = alertas.find(a => !a.lido)
 
-  // Speech do panda: prioriza alerta real
-  const speechText = alertaNaoLido
-    ? alertaNaoLido.mensagem
-    : SENTINEL_SPEECH[estado]
+  const speechText = fala
+
+  // Séries dos últimos 7 dias (defensivo: forma/ordem do backend é desconhecida)
+  const num = x => (Number.isFinite(+x) ? +x : 0)
+  const dataDe = d => new Date(d.data || d.dia || d.date)
+  const ordenado = [...historico].sort((a, b) => {
+    const da = dataDe(a), db = dataDe(b)
+    return (isNaN(da) || isNaN(db)) ? 0 : da - db
+  })
+  const ultimos7   = ordenado.slice(-7)
+  const serieScore = ultimos7.map(d => calcularScore({ passos: num(d.passos), agua: num(d.agua), sono: num(d.sono) }))
+  const seriePassos = ultimos7.map(d => num(d.passos))
+  const rotulos    = ultimos7.map(d => {
+    const dt = dataDe(d)
+    return isNaN(dt) ? '' : DOW[dt.getDay()]
+  })
+  const temSerie   = ultimos7.length >= 2
+  const deltaScore = temSerie ? serieScore[serieScore.length - 1] - serieScore[0] : 0
 
   return (
     <PageTransition>
       {/* Saudação */}
-      <header style={{ marginBottom: '32px' }}>
-        <div style={{
-          fontSize: '0.6rem', fontWeight: '700',
-          letterSpacing: '0.22em', textTransform: 'uppercase',
-          color: 'var(--accent)', marginBottom: '4px',
-        }}>
+      <header className="mb-8">
+        <div className="text-[0.6rem] font-bold tracking-[0.22em] uppercase text-[var(--accent)] mb-1">
           Vitals Weather — {ESTADO_LABEL[estado]}
         </div>
-        <h1 style={{
-          fontSize: 'clamp(1.6rem, 5vw, 2.2rem)',
-          fontWeight: '800',
-          color: 'var(--text-primary)',
-          letterSpacing: '-0.03em',
-          lineHeight: 1.1,
-        }}>
+        <h1 className="text-[clamp(1.6rem,5vw,2.2rem)] font-extrabold text-[var(--text-primary)] tracking-[-0.03em] leading-[1.1]">
           Olá, {usuario.first_name || usuario.username}
         </h1>
-        <p style={{
-          fontSize: '0.82rem',
-          color: 'var(--text-muted)',
-          marginTop: '4px',
-          textTransform: 'capitalize',
-        }}>
+        <p className="text-[0.82rem] text-[var(--text-muted)] mt-1 capitalize">
           {hoje}
         </p>
       </header>
 
-      {/* Panda + balão SENTINEL */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '36px' }}>
+      {/* Panda + balão de fala (voz do panda) */}
+      <div className="flex justify-center mb-9">
         <PandaMascot
           healthState={estado}
           pose="dashboard"
@@ -123,37 +138,23 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Score bar */}
-      <div style={{ marginBottom: '28px' }}>
-        <div style={{
-          display: 'flex', justifyContent: 'space-between',
-          fontSize: '0.7rem', fontWeight: '600',
-          color: 'var(--text-muted)', marginBottom: '6px',
-          letterSpacing: '0.08em',
-        }}>
-          <span>Score de saúde</span>
-          <span style={{ color: 'var(--accent)' }}>{score}/100</span>
-        </div>
-        <div className="progress-bar" style={{ height: '8px' }}>
-          <motion.div
-            className="progress-fill"
-            initial={{ width: 0 }}
-            animate={{ width: `${score}%` }}
-            transition={{ duration: 1.2, ease: [0.34, 1.56, 0.64, 1], delay: 0.3 }}
-          />
-        </div>
+      {/* Score — medidor (gauge) */}
+      <div className="flex justify-center mb-8">
+        <Gauge
+          value={score}
+          label="Score de saúde"
+          estadoLabel={ESTADO_LABEL[estado]}
+          size={210}
+        />
       </div>
 
       {/* Stats grid */}
-      <section aria-label="Estatísticas" style={{
-        display: 'grid',
+      <section aria-label="Estatísticas" className="grid gap-3 mb-7" style={{
         gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-        gap: '12px',
-        marginBottom: '28px',
       }}>
         {loadingData ? (
           Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="shimmer-block glass" style={shimmerStyle()} />
+            <div key={i} className="shimmer-block glass rounded-lg h-20 overflow-hidden" />
           ))
         ) : (
           <>
@@ -165,49 +166,55 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* Missões do dia */}
-      <section aria-labelledby="missoes-title" style={{ marginBottom: '28px' }}>
-        <div style={{
-          display: 'flex', justifyContent: 'space-between',
-          alignItems: 'center', marginBottom: '14px',
+      {/* Gráficos da semana (só quando há histórico) */}
+      {temSerie && (
+        <section aria-label="Tendências da semana" className="grid gap-3 mb-7" style={{
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
         }}>
+          <article className="glass rounded-lg p-[18px]">
+            <VizHead esq="Score · 7 dias" dir={`${deltaScore >= 0 ? '+' : ''}${deltaScore}`} />
+            <div className="font-[family-name:var(--font-display)] text-[2rem] leading-none text-[var(--text-primary)] mb-1.5">
+              {serieScore[serieScore.length - 1]}
+            </div>
+            <TrendChart data={serieScore} labels={rotulos} />
+          </article>
+
+          <article className="glass rounded-lg p-[18px]">
+            <VizHead esq="Passos · 7 dias" />
+            <div className="font-[family-name:var(--font-display)] text-[2rem] leading-none text-[var(--text-primary)] mb-2.5">
+              {(seriePassos[seriePassos.length - 1] ?? 0).toLocaleString('pt-BR')}
+            </div>
+            <BarChart data={seriePassos} labels={rotulos} />
+          </article>
+        </section>
+      )}
+
+      {/* Missões do dia */}
+      <section aria-labelledby="missoes-title" className="mb-7">
+        <div className="flex justify-between items-center mb-3.5">
           <div>
-            <div style={{
-              fontSize: '0.6rem', fontWeight: '700',
-              letterSpacing: '0.22em', textTransform: 'uppercase',
-              color: 'var(--text-muted)', marginBottom: '2px',
-            }}>
+            <div className="text-[0.6rem] font-bold tracking-[0.22em] uppercase text-[var(--text-muted)] mb-0.5">
               Hoje
             </div>
-            <h2 id="missoes-title" style={{
-              fontSize: '1rem', fontWeight: '800',
-              color: 'var(--text-primary)', letterSpacing: '-0.01em',
-            }}>
+            <h2 id="missoes-title" className="text-base font-extrabold text-[var(--text-primary)] tracking-[-0.01em]">
               Missões do Dia
             </h2>
           </div>
           <Link
             to="/missoes"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '4px',
-              fontSize: '0.72rem', fontWeight: '700',
-              color: 'var(--accent)', textDecoration: 'none',
-              letterSpacing: '0.04em',
-            }}
+            className="flex items-center gap-1 text-[0.72rem] font-bold text-[var(--accent)] no-underline tracking-[0.04em]"
           >
             Atualizar
             <ArrowRight size={14} />
           </Link>
         </div>
 
-        <div style={{
-          display: 'grid',
+        <div className="grid gap-3" style={{
           gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
-          gap: '12px',
         }}>
           {loadingData ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="shimmer-block glass" style={{ ...shimmerStyle(), height: '130px' }} />
+              <div key={i} className="shimmer-block glass rounded-lg overflow-hidden h-[130px]" />
             ))
           ) : (
             MISSOES_CONFIG.map(({ chave, titulo, Icone, unidade }) => (
@@ -225,64 +232,6 @@ export default function DashboardPage() {
           )}
         </div>
       </section>
-
-      {/* Banner SENTINEL */}
-      <motion.aside
-        whileHover={{ scale: 1.01 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        className="glass"
-        style={{
-          borderRadius: '20px',
-          padding: '20px 22px',
-          borderColor: 'var(--accent)',
-          background: 'var(--accent-soft)',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-          <div>
-            <div style={{
-              fontSize: '0.6rem', fontWeight: '800',
-              letterSpacing: '0.22em', textTransform: 'uppercase',
-              color: 'var(--accent)', marginBottom: '4px',
-            }}>
-              Sentinel
-            </div>
-            <div style={{
-              fontSize: '0.92rem', fontWeight: '700',
-              color: 'var(--text-primary)',
-            }}>
-              {alertas.length > 0
-                ? `${alertas.filter(a => !a.lido).length} alerta(s) não lido(s)`
-                : 'Tudo sob controle'}
-            </div>
-            <div style={{
-              fontSize: '0.75rem',
-              color: 'var(--text-muted)',
-              marginTop: '2px',
-            }}>
-              Detecção precoce de padrões irregulares
-            </div>
-          </div>
-          <Link
-            to="/sentinel"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              background: 'var(--accent)',
-              color: '#fff',
-              fontSize: '0.72rem', fontWeight: '800',
-              letterSpacing: '0.08em', textTransform: 'uppercase',
-              padding: '10px 18px',
-              borderRadius: '999px',
-              textDecoration: 'none',
-              flexShrink: 0,
-              boxShadow: '0 0 16px var(--accent-glow)',
-            }}
-          >
-            Ver alertas
-            <ArrowRight size={13} />
-          </Link>
-        </div>
-      </motion.aside>
     </PageTransition>
   )
 }

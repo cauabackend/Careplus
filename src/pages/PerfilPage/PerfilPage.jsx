@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext'
 import { api }     from '../../services/api'
 import PageTransition from '../../components/PageTransition/PageTransition'
 import PandaMascot from '../../components/PandaMascot/PandaMascot'
+import { Avatar, AvatarImage, AvatarFallback } from '../../components/ui/avatar'
 import { useVitalsWeatherCtx } from '../../context/VitalsWeatherContext'
 
 const BADGES_INFO = {
@@ -32,25 +33,12 @@ export default function PerfilPage() {
   return (
     <PageTransition>
       {/* Cabeçalho */}
-      <div style={{
-        display: 'flex', alignItems: 'flex-end',
-        justifyContent: 'space-between', gap: '16px',
-        marginBottom: '32px',
-      }}>
+      <div className="flex items-end justify-between gap-4 mb-8">
         <header>
-          <div style={{
-            fontSize: '0.6rem', fontWeight: '700',
-            letterSpacing: '0.22em', textTransform: 'uppercase',
-            color: 'var(--accent)', marginBottom: '4px',
-          }}>
+          <div className="text-[0.6rem] font-bold tracking-[0.22em] uppercase text-[var(--accent)] mb-1">
             Conta
           </div>
-          <h1 style={{
-            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-            fontWeight: '800',
-            color: 'var(--text-primary)',
-            letterSpacing: '-0.025em',
-          }}>
+          <h1 className="text-[clamp(1.5rem,4vw,2rem)] font-extrabold text-[var(--text-primary)] tracking-[-0.025em]">
             Perfil
           </h1>
         </header>
@@ -64,59 +52,41 @@ export default function PerfilPage() {
       {/* Card de identidade */}
       <motion.section
         aria-label="Informações pessoais"
-        className="glass"
-        style={{ borderRadius: '20px', padding: '24px', marginBottom: '16px' }}
+        className="glass rounded-[20px] p-6 mb-4"
         whileHover={{ scale: 1.01 }}
         transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       >
-        {/* Avatar */}
-        <div style={{
-          width: '56px', height: '56px', borderRadius: '16px',
-          background: 'var(--accent-soft)',
-          border: '1px solid var(--accent)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: '16px',
-          boxShadow: '0 0 16px var(--accent-glow)',
-        }}>
-          <span style={{
-            fontSize: '1.4rem', fontWeight: '800',
-            color: 'var(--accent)',
-          }}>
-            {inicial}
-          </span>
-        </div>
+        {/* Avatar (Radix — imagem quando houver, senão a inicial) */}
+        <Avatar
+          className="h-14 w-14 mb-4 border border-[var(--accent)]"
+          style={{
+            boxShadow: '0 0 16px var(--accent-glow)',
+          }}
+        >
+          {usuario.avatar_url && (
+            <AvatarImage src={usuario.avatar_url} alt={usuario.first_name || usuario.username} />
+          )}
+          <AvatarFallback className="text-[1.4rem]">{inicial}</AvatarFallback>
+        </Avatar>
 
-        <h2 style={{
-          fontSize: '1.1rem', fontWeight: '800',
-          color: 'var(--text-primary)', letterSpacing: '-0.01em',
-          marginBottom: '2px',
-        }}>
+        <h2 className="text-[1.1rem] font-extrabold text-[var(--text-primary)] tracking-[-0.01em] mb-0.5">
           {usuario.first_name || usuario.username}
         </h2>
-        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '20px' }}>
+        <p className="text-[0.8rem] text-[var(--text-muted)] mb-5">
           {usuario.email}
         </p>
 
         {/* Estatísticas inline */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div className="grid grid-cols-2 gap-2.5">
           {[
             { label: 'Pontos', valor: usuario.pontos },
             { label: 'Streak', valor: `${usuario.streak} dias` },
           ].map(({ label, valor }) => (
-            <div key={label} className="glass" style={{
-              borderRadius: '14px', padding: '14px 16px',
-            }}>
-              <div style={{
-                fontSize: '0.6rem', fontWeight: '700',
-                letterSpacing: '0.18em', textTransform: 'uppercase',
-                color: 'var(--text-muted)', marginBottom: '4px',
-              }}>
+            <div key={label} className="glass rounded-[14px] py-3.5 px-4">
+              <div className="text-[0.6rem] font-bold tracking-[0.18em] uppercase text-[var(--text-muted)] mb-1">
                 {label}
               </div>
-              <div style={{
-                fontSize: '1.3rem', fontWeight: '800',
-                color: 'var(--accent)', letterSpacing: '-0.02em',
-              }}>
+              <div className="text-[1.3rem] font-extrabold text-[var(--accent)] tracking-[-0.02em]">
                 {valor}
               </div>
             </div>
@@ -125,24 +95,18 @@ export default function PerfilPage() {
       </motion.section>
 
       {/* Badges / Conquistas */}
-      <section aria-labelledby="badges-title" className="glass" style={{ borderRadius: '20px', padding: '24px' }}>
-        <h2 id="badges-title" style={{
-          fontSize: '0.92rem', fontWeight: '800',
-          color: 'var(--text-primary)', letterSpacing: '-0.01em',
-          marginBottom: '14px',
-        }}>
+      <section aria-labelledby="badges-title" className="glass rounded-[20px] p-6">
+        <h2 id="badges-title" className="text-[0.92rem] font-extrabold text-[var(--text-primary)] tracking-[-0.01em] mb-3.5">
           Conquistas ({badges.length})
         </h2>
 
         {badges.length === 0 ? (
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          <p className="text-[0.8rem] text-[var(--text-muted)]">
             Complete missões para conquistar conquistas.
           </p>
         ) : (
-          <div style={{
-            display: 'grid',
+          <div className="grid gap-2.5" style={{
             gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-            gap: '10px',
           }}>
             {badges.map((b, i) => {
               const info = BADGES_INFO[b.badge_id] ?? { nome: b.badge_id, icon: Award }
@@ -153,27 +117,12 @@ export default function PerfilPage() {
                   initial={{ opacity: 1, scale: 0.88 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.05, type: 'spring', stiffness: 300 }}
-                  className="glass"
-                  style={{
-                    borderRadius: '14px', padding: '14px',
-                    display: 'flex', flexDirection: 'column', gap: '8px',
-                    alignItems: 'flex-start',
-                    borderColor: 'var(--accent)',
-                    background: 'var(--accent-soft)',
-                  }}
+                  className="glass rounded-[14px] p-3.5 flex flex-col gap-2 items-start !border-[var(--accent)] bg-[var(--accent-soft)]"
                 >
-                  <div style={{
-                    width: '32px', height: '32px', borderRadius: '10px',
-                    background: 'var(--accent-soft)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <Icon size={16} style={{ color: 'var(--accent)' }} />
+                  <div className="w-8 h-8 rounded-[10px] bg-[var(--accent-soft)] flex items-center justify-center">
+                    <Icon size={16} className="text-[var(--accent)]" />
                   </div>
-                  <span style={{
-                    fontSize: '0.72rem', fontWeight: '700',
-                    color: 'var(--text-primary)',
-                    lineHeight: 1.2,
-                  }}>
+                  <span className="text-[0.72rem] font-bold text-[var(--text-primary)] leading-[1.2]">
                     {info.nome}
                   </span>
                 </motion.div>

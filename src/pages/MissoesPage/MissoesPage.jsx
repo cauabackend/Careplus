@@ -83,28 +83,15 @@ export default function MissoesPage() {
   return (
     <PageTransition>
       {/* Cabeçalho com panda */}
-      <div style={{
-        display: 'flex', alignItems: 'flex-end',
-        justifyContent: 'space-between', gap: '16px',
-        marginBottom: '32px',
-      }}>
+      <div className="flex items-end justify-between gap-4 mb-8">
         <div>
-          <div style={{
-            fontSize: '0.6rem', fontWeight: '700',
-            letterSpacing: '0.22em', textTransform: 'uppercase',
-            color: 'var(--accent)', marginBottom: '4px',
-          }}>
+          <div className="text-[0.6rem] font-bold tracking-[0.22em] uppercase text-[var(--accent)] mb-1">
             Hoje
           </div>
-          <h1 style={{
-            fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-            fontWeight: '800',
-            color: 'var(--text-primary)',
-            letterSpacing: '-0.025em',
-          }}>
+          <h1 className="text-[clamp(1.5rem,4vw,2rem)] font-extrabold text-[var(--text-primary)] tracking-[-0.025em]">
             Missões
           </h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+          <p className="text-[0.8rem] text-[var(--text-muted)] mt-1">
             Complete suas metas diárias de saúde.
           </p>
         </div>
@@ -117,26 +104,20 @@ export default function MissoesPage() {
       </div>
 
       {/* Barra de sync */}
-      <div className="glass" style={{
-        borderRadius: '16px', padding: '14px 18px',
-        display: 'flex', alignItems: 'center', gap: '12px',
-        marginBottom: '20px',
-      }}>
-        <div style={{
-          width: '8px', height: '8px', borderRadius: '50%',
-          background: sincronizando ? 'var(--accent)' : 'var(--text-muted)',
-          boxShadow: sincronizando ? '0 0 8px var(--accent)' : 'none',
-          flexShrink: 0,
-          transition: 'background 0.3s, box-shadow 0.3s',
-        }} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            fontSize: '0.82rem', fontWeight: '700',
-            color: 'var(--text-primary)',
-          }}>
+      <div className="glass rounded-2xl py-3.5 px-[18px] flex items-center gap-3 mb-5">
+        <div
+          className="w-2 h-2 rounded-full flex-shrink-0"
+          style={{
+            background: sincronizando ? 'var(--accent)' : 'var(--text-muted)',
+            boxShadow: sincronizando ? '0 0 8px var(--accent)' : 'none',
+            transition: 'background 0.3s, box-shadow 0.3s',
+          }}
+        />
+        <div className="flex-1 min-w-0">
+          <div className="text-[0.82rem] font-bold text-[var(--text-primary)]">
             {sincronizando ? 'Sincronizando...' : 'Google Health'}
           </div>
-          <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div className="text-[0.72rem] text-[var(--text-muted)] overflow-hidden text-ellipsis whitespace-nowrap">
             {progresso
               ? `Atualizado — ${dados.passos.toLocaleString('pt-BR')} passos`
               : 'Nenhuma sincronização hoje'}
@@ -145,16 +126,10 @@ export default function MissoesPage() {
         <button
           onClick={sincronizar}
           disabled={sincronizando}
+          className="flex items-center gap-1.5 bg-[var(--accent)] text-[#fff] text-[0.7rem] font-extrabold tracking-[0.06em] uppercase py-2 px-4 rounded-full border-none flex-shrink-0"
           style={{
-            display: 'flex', alignItems: 'center', gap: '6px',
-            background: 'var(--accent)',
-            color: '#fff',
-            fontSize: '0.7rem', fontWeight: '800',
-            letterSpacing: '0.06em', textTransform: 'uppercase',
-            padding: '8px 16px', borderRadius: '999px', border: 'none',
             cursor: sincronizando ? 'not-allowed' : 'pointer',
             opacity: sincronizando ? 0.55 : 1,
-            flexShrink: 0,
             fontFamily: 'inherit',
             boxShadow: '0 0 12px var(--accent-glow)',
             transition: 'opacity 0.18s',
@@ -173,13 +148,11 @@ export default function MissoesPage() {
       {mensagem && (
         <div
           role="alert"
+          className="text-[0.8rem] font-semibold rounded-xl py-3 px-4 mb-4 border"
           style={{
-            fontSize: '0.8rem', fontWeight: '600',
-            borderRadius: '12px', padding: '12px 16px',
-            marginBottom: '16px',
             background: mensagem.tipo === 'success' ? 'rgba(45,215,95,0.12)' : 'rgba(255,58,58,0.12)',
             color:      mensagem.tipo === 'success' ? '#2DD75F'              : '#FF3A3A',
-            border:     `1px solid ${mensagem.tipo === 'success' ? 'rgba(45,215,95,0.3)' : 'rgba(255,58,58,0.3)'}`,
+            borderColor: mensagem.tipo === 'success' ? 'rgba(45,215,95,0.3)' : 'rgba(255,58,58,0.3)',
             transition: 'opacity 0.3s',
           }}
         >
@@ -189,16 +162,13 @@ export default function MissoesPage() {
 
       {/* Shimmer loading */}
       {loading && (
-        <div style={{
-          display: 'grid',
+        <div className="grid gap-3" style={{
           gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
-          gap: '12px',
         }}>
           {MISSOES_CONFIG.map((_, i) => (
             <div
               key={i}
-              className="shimmer-block glass"
-              style={{ borderRadius: '18px', height: '140px' }}
+              className="shimmer-block glass rounded-[18px] h-[140px]"
             />
           ))}
         </div>
@@ -206,16 +176,14 @@ export default function MissoesPage() {
 
       {/* Cards de missão */}
       {!loading && (
-        <section aria-label="Missões do dia" style={{
-          display: 'grid',
+        <section aria-label="Missões do dia" className="grid gap-3" style={{
           gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
-          gap: '12px',
         }}>
           {MISSOES_CONFIG.map(({ chave, titulo, Icone, unidade }) => {
             const concluida = missoesConcluidas.includes(chave)
             const atingida  = progresso && (dados[chave] ?? 0) >= METAS[chave]
             return (
-              <div key={chave} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div key={chave} className="flex flex-col gap-2">
                 <MissionCard
                   titulo={titulo}
                   Icone={Icone}
@@ -228,16 +196,10 @@ export default function MissoesPage() {
                 {!concluida && atingida && (
                   <button
                     onClick={() => concluirMissao(chave)}
+                    className="flex items-center justify-center gap-1.5 w-full p-2.5 border border-[var(--accent)] rounded-xl text-[0.72rem] font-extrabold tracking-[0.06em] uppercase cursor-pointer"
                     style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                      width: '100%', padding: '10px',
                       background: 'var(--accent-soft)',
-                      border: '1px solid var(--accent)',
-                      borderRadius: '12px',
                       color: 'var(--accent)',
-                      fontSize: '0.72rem', fontWeight: '800',
-                      letterSpacing: '0.06em', textTransform: 'uppercase',
-                      cursor: 'pointer',
                       fontFamily: 'inherit',
                       transition: 'background 0.18s',
                     }}

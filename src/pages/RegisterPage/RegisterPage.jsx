@@ -5,26 +5,11 @@ import { api } from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 import PandaMascot from '../../components/PandaMascot/PandaMascot'
 
-const inputStyle = {
-  width: '100%',
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.10)',
-  borderRadius: '12px',
-  padding: '11px 14px',
-  color: 'var(--text-primary)',
-  fontSize: '0.82rem',
-  fontFamily: 'inherit',
-  outline: 'none',
-  transition: 'border-color 0.18s',
-  boxSizing: 'border-box',
-}
+const inputClass =
+  'w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.10)] rounded-[12px] py-[11px] px-[14px] text-[var(--text-primary)] text-[0.82rem] font-[inherit] outline-none transition-[border-color] duration-[0.18s] box-border'
 
-const labelStyle = {
-  display: 'block',
-  fontSize: '0.6rem', fontWeight: '700',
-  letterSpacing: '0.18em', textTransform: 'uppercase',
-  color: 'var(--text-muted)', marginBottom: '5px',
-}
+const labelClass =
+  'block text-[0.6rem] font-bold tracking-[0.18em] uppercase text-[var(--text-muted)] mb-[5px]'
 
 export default function RegisterPage({ onSwitchToLogin }) {
   const { login } = useAuth()
@@ -53,16 +38,7 @@ export default function RegisterPage({ onSwitchToLogin }) {
 
   return (
     <div
-      className="app-bg vw-good"
-      style={{
-        minHeight: '100dvh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px 16px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
+      className="app-bg vw-good min-h-[100dvh] flex items-center justify-center py-6 px-4 relative overflow-hidden"
     >
       {/* Partículas */}
       {[10, 30, 55, 75, 90].map((left, i) => (
@@ -77,25 +53,18 @@ export default function RegisterPage({ onSwitchToLogin }) {
         initial={{ opacity: 1, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.4, 0, 0.2, 1] }}
-        style={{ width: '100%', maxWidth: '360px', position: 'relative', zIndex: 1 }}
+        className="w-full max-w-[360px] relative z-[1]"
       >
         {/* Panda + logo */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div className="text-center mb-6">
           <PandaMascot healthState="good" size="sm" />
-          <div style={{
-            fontSize: '0.6rem', fontWeight: '700',
-            letterSpacing: '0.28em', textTransform: 'uppercase',
-            color: 'var(--accent)', marginTop: '10px', marginBottom: '4px',
-          }}>
+          <div className="text-[0.6rem] font-bold tracking-[0.28em] uppercase text-[var(--accent)] mt-[10px] mb-1">
             CarePlus+
           </div>
-          <h1 style={{
-            fontSize: '1.6rem', fontWeight: '800',
-            color: 'var(--text-primary)', letterSpacing: '-0.03em',
-          }}>
+          <h1 className="text-[1.6rem] font-extrabold text-[var(--text-primary)] tracking-[-0.03em]">
             Criar conta
           </h1>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+          <p className="text-[0.78rem] text-[var(--text-muted)] mt-1">
             Comece sua jornada de saúde hoje
           </p>
         </div>
@@ -103,22 +72,14 @@ export default function RegisterPage({ onSwitchToLogin }) {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="glass"
-          style={{ borderRadius: '20px', padding: '22px' }}
+          className="glass rounded-[20px] p-[22px]"
         >
           {erro && (
             <motion.div
               initial={{ opacity: 1, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               role="alert"
-              style={{
-                fontSize: '0.78rem', fontWeight: '600',
-                background: 'rgba(255,58,58,0.12)',
-                border: '1px solid rgba(255,58,58,0.3)',
-                color: '#FF3A3A',
-                borderRadius: '10px', padding: '10px 14px',
-                marginBottom: '14px',
-              }}
+              className="text-[0.78rem] font-semibold bg-[rgba(255,58,58,0.12)] border border-[rgba(255,58,58,0.3)] text-[#FF3A3A] rounded-[10px] py-[10px] px-[14px] mb-[14px]"
             >
               {erro}
             </motion.div>
@@ -130,8 +91,8 @@ export default function RegisterPage({ onSwitchToLogin }) {
             { id: 'email',      label: 'E-mail',    type: 'email',    autocomplete: 'email'      },
             { id: 'password',   label: 'Senha (mín. 6)',type:'password', autocomplete: 'new-password'},
           ].map(field => (
-            <div key={field.id} style={{ marginBottom: '12px' }}>
-              <label htmlFor={field.id} style={labelStyle}>{field.label}</label>
+            <div key={field.id} className="mb-3">
+              <label htmlFor={field.id} className={labelClass}>{field.label}</label>
               <input
                 id={field.id}
                 name={field.id}
@@ -141,7 +102,7 @@ export default function RegisterPage({ onSwitchToLogin }) {
                 autoComplete={field.autocomplete}
                 value={form[field.id]}
                 onChange={handleChange}
-                style={inputStyle}
+                className={inputClass}
                 onFocus={e => { e.target.style.borderColor = 'var(--accent)' }}
                 onBlur={e  => { e.target.style.borderColor = 'rgba(255,255,255,0.10)' }}
               />
@@ -151,36 +112,23 @@ export default function RegisterPage({ onSwitchToLogin }) {
           <button
             type="submit"
             disabled={loading}
+            className="w-full bg-[var(--accent)] text-[#fff] text-[0.78rem] font-extrabold tracking-[0.08em] uppercase p-3 rounded-full border-none font-[inherit] mt-1"
             style={{
-              width: '100%',
-              background: 'var(--accent)',
-              color: '#fff',
-              fontSize: '0.78rem', fontWeight: '800',
-              letterSpacing: '0.08em', textTransform: 'uppercase',
-              padding: '12px', borderRadius: '999px', border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
               opacity: loading ? 0.65 : 1,
-              fontFamily: 'inherit',
               boxShadow: '0 0 20px var(--accent-glow)',
-              marginTop: '4px',
             }}
           >
             {loading ? 'Criando...' : 'Criar conta'}
           </button>
         </form>
 
-        <p style={{
-          textAlign: 'center', fontSize: '0.8rem',
-          color: 'var(--text-muted)', marginTop: '14px',
-        }}>
+        <p className="text-center text-[0.8rem] text-[var(--text-muted)] mt-[14px]">
           Ja tem conta?{' '}
           <button
             onClick={onSwitchToLogin}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: 'var(--accent)', fontWeight: '700',
-              fontFamily: 'inherit', fontSize: 'inherit',
-            }}
+            className="cursor-pointer text-[var(--accent)] font-bold font-[inherit] text-[length:inherit]"
+            style={{ background: 'none', border: 'none' }}
           >
             Entrar
           </button>
