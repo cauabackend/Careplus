@@ -115,7 +115,20 @@ function proximoId(lista) {
 
 /** Id do usuário logado (ou lança 401 se não houver sessão). */
 function uidAtual() {
-  const uid = Number(localStorage.getItem(UID_KEY))
+  let uid = Number(localStorage.getItem(UID_KEY))
+  if (!uid) {
+    // Sessão antiga (pré-migração JWT) salvava só o usuário, sem cp_uid.
+    // Recupera o id a partir do usuário em cache para não quebrar a sessão.
+    try {
+      const u = JSON.parse(localStorage.getItem('cp_usuario') || 'null')
+      if (u && u.id) {
+        uid = Number(u.id)
+        localStorage.setItem(UID_KEY, String(uid))
+      }
+    } catch {
+      // cache inválido — segue para o 401 abaixo
+    }
+  }
   if (!uid) throw erroApi({ detail: 'Não autenticado.' }, 401)
   return uid
 }
