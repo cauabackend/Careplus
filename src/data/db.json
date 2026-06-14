@@ -4,7 +4,8 @@
     { "id": 1, "username": "demo", "email": "demo@careplus.com", "first_name": "Você", "password": "123456", "pontos": 860, "streak": 5 },
     { "id": 2, "username": "ana", "email": "ana@careplus.com", "first_name": "Ana", "password": "123456", "pontos": 1200, "streak": 9 },
     { "id": 3, "username": "bruno", "email": "bruno@careplus.com", "first_name": "Bruno", "password": "123456", "pontos": 540, "streak": 3 },
-    { "id": 4, "username": "carla", "email": "carla@careplus.com", "first_name": "Carla", "password": "123456", "pontos": 300, "streak": 1 }
+    { "id": 4, "username": "carla", "email": "carla@careplus.com", "first_name": "Carla", "password": "123456", "pontos": 300, "streak": 1 },
+    { "id": 5, "username": "caua", "email": "caua@careplus.com", "first_name": "Cauã", "password": "caua2026", "pontos": 2680, "streak": 12 }
   ],
   "progressos": [
     { "id": 1,  "usuario_id": 1, "dias_atras": 0,  "passos": 8200,  "agua": 3.1, "sono": 7.2, "fonte": "Google Health" },
@@ -20,7 +21,22 @@
     { "id": 11, "usuario_id": 1, "dias_atras": 10, "passos": 8100,  "agua": 3.0, "sono": 7.1, "fonte": "Google Health" },
     { "id": 12, "usuario_id": 1, "dias_atras": 11, "passos": 6700,  "agua": 2.2, "sono": 6.4, "fonte": "Google Health" },
     { "id": 13, "usuario_id": 1, "dias_atras": 12, "passos": 10200, "agua": 3.4, "sono": 8.1, "fonte": "Google Health" },
-    { "id": 14, "usuario_id": 1, "dias_atras": 13, "passos": 7300,  "agua": 2.8, "sono": 7.0, "fonte": "Google Health" }
+    { "id": 14, "usuario_id": 1, "dias_atras": 13, "passos": 7300,  "agua": 2.8, "sono": 7.0, "fonte": "Google Health" },
+
+    { "id": 15, "usuario_id": 5, "dias_atras": 0,  "passos": 9200,  "agua": 3.3, "sono": 7.6, "fonte": "Google Health" },
+    { "id": 16, "usuario_id": 5, "dias_atras": 1,  "passos": 8100,  "agua": 2.9, "sono": 7.1, "fonte": "Google Health" },
+    { "id": 17, "usuario_id": 5, "dias_atras": 2,  "passos": 10400, "agua": 3.5, "sono": 8.0, "fonte": "Google Health" },
+    { "id": 18, "usuario_id": 5, "dias_atras": 3,  "passos": 7200,  "agua": 2.6, "sono": 6.9, "fonte": "Google Health" },
+    { "id": 19, "usuario_id": 5, "dias_atras": 4,  "passos": 11800, "agua": 3.6, "sono": 8.2, "fonte": "Google Health" },
+    { "id": 20, "usuario_id": 5, "dias_atras": 5,  "passos": 8600,  "agua": 3.0, "sono": 7.4, "fonte": "Google Health" },
+    { "id": 21, "usuario_id": 5, "dias_atras": 6,  "passos": 9300,  "agua": 3.2, "sono": 7.7, "fonte": "Google Health" },
+    { "id": 22, "usuario_id": 5, "dias_atras": 7,  "passos": 6800,  "agua": 2.3, "sono": 6.5, "fonte": "Google Health" },
+    { "id": 23, "usuario_id": 5, "dias_atras": 8,  "passos": 10100, "agua": 3.4, "sono": 7.9, "fonte": "Google Health" },
+    { "id": 24, "usuario_id": 5, "dias_atras": 9,  "passos": 7700,  "agua": 2.7, "sono": 7.0, "fonte": "Google Health" },
+    { "id": 25, "usuario_id": 5, "dias_atras": 10, "passos": 8900,  "agua": 3.1, "sono": 7.3, "fonte": "Google Health" },
+    { "id": 26, "usuario_id": 5, "dias_atras": 11, "passos": 7400,  "agua": 2.5, "sono": 6.7, "fonte": "Google Health" },
+    { "id": 27, "usuario_id": 5, "dias_atras": 12, "passos": 10800, "agua": 3.5, "sono": 8.1, "fonte": "Google Health" },
+    { "id": 28, "usuario_id": 5, "dias_atras": 13, "passos": 8200,  "agua": 2.9, "sono": 7.2, "fonte": "Google Health" }
   ],
   "missoes": [
     { "id": 1,  "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 1 },
@@ -47,24 +63,94 @@
     { "id": 22, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 55 },
     { "id": 23, "usuario_id": 1, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 55 },
     { "id": 24, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 60 },
-    { "id": 25, "usuario_id": 1, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 70 }
+    { "id": 25, "usuario_id": 1, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 70 },
+
+    { "id": 26, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 1 },
+    { "id": 27, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 2 },
+    { "id": 28, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 3 },
+    { "id": 29, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 5 },
+    { "id": 30, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 6 },
+    { "id": 31, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 7 },
+    { "id": 32, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 9 },
+    { "id": 33, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 11 },
+    { "id": 34, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 13 },
+    { "id": 35, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 14 },
+    { "id": 36, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 16 },
+    { "id": 37, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 18 },
+    { "id": 38, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 20 },
+    { "id": 39, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 21 },
+    { "id": 40, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 23 },
+    { "id": 41, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 25 },
+    { "id": 42, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 27 },
+    { "id": 43, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 29 },
+    { "id": 44, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 31 },
+    { "id": 45, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 33 },
+    { "id": 46, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 35 },
+    { "id": 47, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 38 },
+    { "id": 48, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 41 },
+    { "id": 49, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 44 },
+    { "id": 50, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 46 },
+    { "id": 51, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 48 },
+    { "id": 52, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 50 },
+    { "id": 53, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 52 },
+    { "id": 54, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 55 },
+    { "id": 55, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 58 },
+    { "id": 56, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 60 },
+    { "id": 57, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 63 },
+    { "id": 58, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 66 },
+    { "id": 59, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 69 },
+    { "id": 60, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 72 },
+    { "id": 61, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 76 },
+    { "id": 62, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 79 },
+    { "id": 63, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 82 },
+    { "id": 64, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 85 },
+    { "id": 65, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 88 },
+    { "id": 66, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 92 },
+    { "id": 67, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 96 },
+    { "id": 68, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 100 },
+    { "id": 69, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 104 },
+    { "id": 70, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 108 },
+    { "id": 71, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 112 },
+    { "id": 72, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 116 },
+    { "id": 73, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 120 },
+    { "id": 74, "usuario_id": 5, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 124 },
+    { "id": 75, "usuario_id": 5, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 128 },
+    { "id": 76, "usuario_id": 5, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 132 }
   ],
   "badges": [
     { "id": 1, "usuario_id": 1, "badge_id": "primeiro_login",  "dias_atras": 60 },
     { "id": 2, "usuario_id": 1, "badge_id": "primeira_missao", "dias_atras": 55 },
     { "id": 3, "usuario_id": 1, "badge_id": "caminhante",      "dias_atras": 5 },
     { "id": 4, "usuario_id": 1, "badge_id": "hidratado",       "dias_atras": 8 },
-    { "id": 5, "usuario_id": 1, "badge_id": "bom_sono",        "dias_atras": 3 }
+    { "id": 5, "usuario_id": 1, "badge_id": "bom_sono",        "dias_atras": 3 },
+
+    { "id": 6,  "usuario_id": 5, "badge_id": "primeiro_login",  "dias_atras": 133 },
+    { "id": 7,  "usuario_id": 5, "badge_id": "primeira_missao", "dias_atras": 130 },
+    { "id": 8,  "usuario_id": 5, "badge_id": "caminhante",      "dias_atras": 5 },
+    { "id": 9,  "usuario_id": 5, "badge_id": "hidratado",       "dias_atras": 6 },
+    { "id": 10, "usuario_id": 5, "badge_id": "bom_sono",        "dias_atras": 3 }
   ],
   "conexoes": [
     { "id": 1, "origem_id": 1, "destino_id": 2, "dias_atras": 30 },
-    { "id": 2, "origem_id": 1, "destino_id": 3, "dias_atras": 12 }
+    { "id": 2, "origem_id": 1, "destino_id": 3, "dias_atras": 12 },
+
+    { "id": 3, "origem_id": 5, "destino_id": 2, "dias_atras": 40 },
+    { "id": 4, "origem_id": 5, "destino_id": 3, "dias_atras": 20 },
+    { "id": 5, "origem_id": 5, "destino_id": 4, "dias_atras": 8 }
   ],
   "chain_events": [
     { "id": 1, "origem_id": 1, "destino_id": 2, "missao": "passos", "dias_atras": 1 },
     { "id": 2, "origem_id": 1, "destino_id": 3, "missao": "agua",   "dias_atras": 3 },
     { "id": 3, "origem_id": 1, "destino_id": 2, "missao": "sono",   "dias_atras": 5 },
     { "id": 4, "origem_id": 2, "destino_id": 1, "missao": "passos", "dias_atras": 1 },
-    { "id": 5, "origem_id": 3, "destino_id": 1, "missao": "agua",   "dias_atras": 2 }
+    { "id": 5, "origem_id": 3, "destino_id": 1, "missao": "agua",   "dias_atras": 2 },
+
+    { "id": 6,  "origem_id": 5, "destino_id": 2, "missao": "passos", "dias_atras": 1 },
+    { "id": 7,  "origem_id": 5, "destino_id": 3, "missao": "agua",   "dias_atras": 2 },
+    { "id": 8,  "origem_id": 5, "destino_id": 4, "missao": "sono",   "dias_atras": 4 },
+    { "id": 9,  "origem_id": 5, "destino_id": 2, "missao": "passos", "dias_atras": 6 },
+    { "id": 10, "origem_id": 2, "destino_id": 5, "missao": "passos", "dias_atras": 1 },
+    { "id": 11, "origem_id": 3, "destino_id": 5, "missao": "agua",   "dias_atras": 2 },
+    { "id": 12, "origem_id": 4, "destino_id": 5, "missao": "sono",   "dias_atras": 3 }
   ]
 }
