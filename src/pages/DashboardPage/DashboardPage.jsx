@@ -115,7 +115,7 @@ export default function DashboardPage() {
   return (
     <PageTransition>
       {/* Saudação */}
-      <header className="mb-8">
+      <header className="mb-2">
         <div className="text-[0.6rem] font-bold tracking-[0.22em] uppercase text-[var(--accent)] mb-1">
           Vitals Weather — {ESTADO_LABEL[estado]}
         </div>
@@ -127,8 +127,9 @@ export default function DashboardPage() {
         </p>
       </header>
 
-      {/* Panda + balão de fala (voz do panda) */}
-      <div className="flex justify-center mb-9">
+      {/* Panda + balão de fala — o pt reserva espaço pro balão (que sobe acima do
+          panda) não colidir com o cabeçalho no mobile. */}
+      <div className="flex justify-center pt-[96px] mb-6">
         <PandaMascot
           healthState={estado}
           pose="dashboard"
