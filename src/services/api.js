@@ -13,7 +13,7 @@
 import seed from '../data/db.json'
 
 // ── Chaves de armazenamento ────────────────────────────────────
-const DB_KEY  = 'cp_db_v1'   // base de dados completa (JSON)
+const DB_KEY  = 'cp_db_v3'   // base de dados completa (JSON) — bump força re-seed
 const UID_KEY = 'cp_uid'     // id do usuário logado
 
 // ── Regras de negócio (espelham src/data/constants.js) ──────────
@@ -357,9 +357,57 @@ async function badges() {
 // THE CHRONICLE (agregação mensal de missões)
 // ════════════════════════════════════════════════════════════════
 
+// Estado de saúde de um dia vira um "nível" 1–5 (1 = crítico … 5 = excelente),
+// que a UI traduz para a paleta do Vitals Weather. Assim cada quadradinho da
+// crônica reflete COMO o dia terminou, não apenas se houve atividade.
+
+/** Score 0–100 do dia a partir do progresso (espelha hooks/useVitalsWeather). */
+function scoreDoProgresso(p) {
+  const passos = p.passos || 0, agua = p.agua || 0, sono = p.sono || 0
+  const passosScore = Math.min((passos / 8000) * 40, 40)
+  const aguaScore   = Math.min((agua / 2.0) * 30, 30)
+  const sonoScore   = Math.max(0, Math.min((sono - 4) / 4, 1)) * 30
+  return Math.round(passosScore + aguaScore + sonoScore)
+}
+
+/** Score → nível 1–5 (mesmos limiares de scoreParaEstado). */
+function nivelDoScore(score) {
+  if (score >= 75) return 5   // excellent
+  if (score >= 50) return 4   // good
+  if (score >= 25) return 3   // warning
+  if (score >= 10) return 2   // weak
+  return 1                    // critical
+}
+
+/** Hash estável de string (para níveis determinísticos por data). */
+function hashData(s) {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0
+  return Math.abs(h)
+}
+
+/**
+ * Nível de um dia sem progresso registrado (histórico): determinístico por
+ * data, com distribuição realista (maioria bons, alguns ruins) para a crônica
+ * não ficar de uma cor só.
+ */
+function nivelPseudo(dataISO) {
+  const r = hashData(dataISO) % 100
+  if (r < 6)  return 1   // ~6%  crítico
+  if (r < 18) return 2   // ~12% fraco
+  if (r < 40) return 3   // ~22% atenção
+  if (r < 70) return 4   // ~30% bom
+  return 5               // ~30% excelente
+}
+
 async function getChronicle() {
   const db = carregarDb()
   const uid = uidAtual()
+
+  // Progresso real por data (quando existe, define a cor do dia de verdade).
+  const progPorData = new Map(
+    db.progressos.filter(p => p.usuario_id === uid).map(p => [p.data, p])
+  )
 
   // Agrupa dias distintos com missão por mês (ano-mês → Set de datas).
   const porMes = new Map()
@@ -377,12 +425,22 @@ async function getChronicle() {
     .map(({ ano, mes, dias }) => {
       const total_dias = new Date(ano, mes, 0).getDate()   // dias do mês
       const dias_ativos = dias.size
+
+      // Nível de saúde por dia do mês (0 = sem atividade; 1–5 = estado).
+      const niveis = Array.from({ length: total_dias }, (_, i) => {
+        const dataISO = `${ano}-${String(mes).padStart(2, '0')}-${String(i + 1).padStart(2, '0')}`
+        if (!dias.has(dataISO)) return 0
+        const prog = progPorData.get(dataISO)
+        return prog ? nivelDoScore(scoreDoProgresso(prog)) : nivelPseudo(dataISO)
+      })
+
       return {
         ano, mes,
         mes_nome: NOMES_MESES[mes],
         dias_ativos,
         total_dias,
         densidade: Math.round((dias_ativos / total_dias) * 100) / 100,
+        dias: niveis,
       }
     })
 

@@ -37,7 +37,7 @@ function MonthCard({ entry, index }) {
       <div aria-label={`Dias ativos em ${nomeMes}: ${dias_ativos} de ${total_dias}`}>
         <CalendarHeatmap
           startWeekday={(() => { const d = new Date(entry.ano, mes - 1, 1); return isNaN(d) ? 0 : d.getDay() })()}
-          values={Array.from({ length: total_dias }, (_, i) => (i < dias_ativos ? 1 : 0))}
+          niveis={entry.dias ?? Array.from({ length: total_dias }, (_, i) => (i < dias_ativos ? 5 : 0))}
           cell={22}
           gap={5}
         />
