@@ -36,6 +36,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('cp_access')
     localStorage.removeItem('cp_refresh')
     localStorage.removeItem('cp_usuario')
+    localStorage.removeItem('cp_uid')   // encerra a sessão da API local
     setUsuario(null)
   }, [])
 

@@ -1,0 +1,70 @@
+{
+  "_doc": "API local simulada (formato JSON) do CarePlus+. Datas usam 'dias_atras' (offset em dias a partir de hoje) para que o seed nunca fique desatualizado. As senhas aqui são apenas dados de demonstração de uma API simulada no cliente — não há backend nem segurança real.",
+  "usuarios": [
+    { "id": 1, "username": "demo", "email": "demo@careplus.com", "first_name": "Você", "password": "123456", "pontos": 860, "streak": 5 },
+    { "id": 2, "username": "ana", "email": "ana@careplus.com", "first_name": "Ana", "password": "123456", "pontos": 1200, "streak": 9 },
+    { "id": 3, "username": "bruno", "email": "bruno@careplus.com", "first_name": "Bruno", "password": "123456", "pontos": 540, "streak": 3 },
+    { "id": 4, "username": "carla", "email": "carla@careplus.com", "first_name": "Carla", "password": "123456", "pontos": 300, "streak": 1 }
+  ],
+  "progressos": [
+    { "id": 1,  "usuario_id": 1, "dias_atras": 0,  "passos": 8200,  "agua": 3.1, "sono": 7.2, "fonte": "Google Health" },
+    { "id": 2,  "usuario_id": 1, "dias_atras": 1,  "passos": 6400,  "agua": 2.4, "sono": 6.5, "fonte": "Google Health" },
+    { "id": 3,  "usuario_id": 1, "dias_atras": 2,  "passos": 9100,  "agua": 3.2, "sono": 7.8, "fonte": "Google Health" },
+    { "id": 4,  "usuario_id": 1, "dias_atras": 3,  "passos": 5200,  "agua": 1.8, "sono": 6.0, "fonte": "Google Health" },
+    { "id": 5,  "usuario_id": 1, "dias_atras": 4,  "passos": 11200, "agua": 3.5, "sono": 8.0, "fonte": "Google Health" },
+    { "id": 6,  "usuario_id": 1, "dias_atras": 5,  "passos": 7600,  "agua": 2.9, "sono": 7.0, "fonte": "Google Health" },
+    { "id": 7,  "usuario_id": 1, "dias_atras": 6,  "passos": 8800,  "agua": 3.0, "sono": 7.5, "fonte": "Google Health" },
+    { "id": 8,  "usuario_id": 1, "dias_atras": 7,  "passos": 4300,  "agua": 1.5, "sono": 5.5, "fonte": "Google Health" },
+    { "id": 9,  "usuario_id": 1, "dias_atras": 8,  "passos": 9900,  "agua": 3.3, "sono": 7.9, "fonte": "Google Health" },
+    { "id": 10, "usuario_id": 1, "dias_atras": 9,  "passos": 7000,  "agua": 2.6, "sono": 6.8, "fonte": "Google Health" },
+    { "id": 11, "usuario_id": 1, "dias_atras": 10, "passos": 8100,  "agua": 3.0, "sono": 7.1, "fonte": "Google Health" },
+    { "id": 12, "usuario_id": 1, "dias_atras": 11, "passos": 6700,  "agua": 2.2, "sono": 6.4, "fonte": "Google Health" },
+    { "id": 13, "usuario_id": 1, "dias_atras": 12, "passos": 10200, "agua": 3.4, "sono": 8.1, "fonte": "Google Health" },
+    { "id": 14, "usuario_id": 1, "dias_atras": 13, "passos": 7300,  "agua": 2.8, "sono": 7.0, "fonte": "Google Health" }
+  ],
+  "missoes": [
+    { "id": 1,  "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 1 },
+    { "id": 2,  "usuario_id": 1, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 1 },
+    { "id": 3,  "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 2 },
+    { "id": 4,  "usuario_id": 1, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 3 },
+    { "id": 5,  "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 5 },
+    { "id": 6,  "usuario_id": 1, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 5 },
+    { "id": 7,  "usuario_id": 1, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 5 },
+    { "id": 8,  "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 6 },
+    { "id": 9,  "usuario_id": 1, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 8 },
+    { "id": 10, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 10 },
+    { "id": 11, "usuario_id": 1, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 10 },
+    { "id": 12, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 12 },
+    { "id": 13, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 20 },
+    { "id": 14, "usuario_id": 1, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 22 },
+    { "id": 15, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 25 },
+    { "id": 16, "usuario_id": 1, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 25 },
+    { "id": 17, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 30 },
+    { "id": 18, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 35 },
+    { "id": 19, "usuario_id": 1, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 35 },
+    { "id": 20, "usuario_id": 1, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 40 },
+    { "id": 21, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 45 },
+    { "id": 22, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 55 },
+    { "id": 23, "usuario_id": 1, "chave_missao": "agua",   "pontos_ganhos": 40,  "dias_atras": 55 },
+    { "id": 24, "usuario_id": 1, "chave_missao": "passos", "pontos_ganhos": 100, "dias_atras": 60 },
+    { "id": 25, "usuario_id": 1, "chave_missao": "sono",   "pontos_ganhos": 60,  "dias_atras": 70 }
+  ],
+  "badges": [
+    { "id": 1, "usuario_id": 1, "badge_id": "primeiro_login",  "dias_atras": 60 },
+    { "id": 2, "usuario_id": 1, "badge_id": "primeira_missao", "dias_atras": 55 },
+    { "id": 3, "usuario_id": 1, "badge_id": "caminhante",      "dias_atras": 5 },
+    { "id": 4, "usuario_id": 1, "badge_id": "hidratado",       "dias_atras": 8 },
+    { "id": 5, "usuario_id": 1, "badge_id": "bom_sono",        "dias_atras": 3 }
+  ],
+  "conexoes": [
+    { "id": 1, "origem_id": 1, "destino_id": 2, "dias_atras": 30 },
+    { "id": 2, "origem_id": 1, "destino_id": 3, "dias_atras": 12 }
+  ],
+  "chain_events": [
+    { "id": 1, "origem_id": 1, "destino_id": 2, "missao": "passos", "dias_atras": 1 },
+    { "id": 2, "origem_id": 1, "destino_id": 3, "missao": "agua",   "dias_atras": 3 },
+    { "id": 3, "origem_id": 1, "destino_id": 2, "missao": "sono",   "dias_atras": 5 },
+    { "id": 4, "origem_id": 2, "destino_id": 1, "missao": "passos", "dias_atras": 1 },
+    { "id": 5, "origem_id": 3, "destino_id": 1, "missao": "agua",   "dias_atras": 2 }
+  ]
+}
