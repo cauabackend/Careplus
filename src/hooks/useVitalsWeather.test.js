@@ -59,8 +59,13 @@ describe('scoreParaEstado', () => {
     expect(scoreParaEstado(49)).toBe('warning');
   });
 
-  it('retorna critical para score abaixo de 25', () => {
+  it('retorna weak para score entre 10 e 24', () => {
+    expect(scoreParaEstado(10)).toBe('weak');
+    expect(scoreParaEstado(24)).toBe('weak');
+  });
+
+  it('retorna critical para score abaixo de 10', () => {
     expect(scoreParaEstado(0)).toBe('critical');
-    expect(scoreParaEstado(24)).toBe('critical');
+    expect(scoreParaEstado(9)).toBe('critical');
   });
 });

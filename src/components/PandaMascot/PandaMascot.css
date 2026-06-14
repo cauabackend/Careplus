@@ -49,6 +49,11 @@
   100% { transform: scale(1); }
 }
 
+/* ── Acessibilidade: desliga loops CSS quando o usuário pede menos movimento ── */
+@media (prefers-reduced-motion: reduce) {
+  [style*="panda-zzz"] { animation: none !important; }
+}
+
 /* ── ZZZ (estado critical) ── */
 @keyframes panda-zzz {
   0%   { opacity: 0; transform: translate(0, 0) scale(0.5); }

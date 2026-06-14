@@ -1,6 +1,10 @@
 // src/components/DashboardLayout/DashboardLayout.jsx
-import { Outlet } from 'react-router-dom'
-import FloatingNav from '../FloatingNav/FloatingNav'
+import { cloneElement, useState } from 'react'
+import { useOutlet, useLocation } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
+import BottomNav from '../BottomNav/BottomNav'
+import ProfileButton from '../ProfileButton/ProfileButton'
+import Onboarding from '../Onboarding/Onboarding'
 import { VitalsWeatherProvider, useVitalsWeatherCtx } from '../../context/VitalsWeatherContext'
 
 // Partículas atmosféricas — posições e delays fixos
@@ -21,16 +25,25 @@ const PARTICLES = [
 
 function Shell() {
   const { estado } = useVitalsWeatherCtx()
+  const outlet     = useOutlet()
+  const location   = useLocation()
+  const [onboarding, setOnboarding] = useState(() => !localStorage.getItem('cp_onboarded'))
+
+  function fecharOnboarding() {
+    localStorage.setItem('cp_onboarded', '1')
+    setOnboarding(false)
+  }
 
   return (
     <div
-      className={`app-bg vw-${estado}`}
-      style={{ position: 'relative', minHeight: '100dvh', overflow: 'hidden' }}
+      className={`app-bg vw-${estado} relative min-h-[100dvh] overflow-hidden`}
     >
+      {onboarding && <Onboarding onComplete={fecharOnboarding} />}
+
       {/* Atmosfera */}
       <div
         aria-hidden="true"
-        style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}
+        className="fixed inset-0 pointer-events-none z-0"
       >
         {PARTICLES.map(p => (
           <div
@@ -44,20 +57,23 @@ function Shell() {
         <div className="aurora-band b3" />
       </div>
 
-      {/* Nav flutuante */}
-      <FloatingNav />
+      {/* Atalho de perfil (avatar, topo-direito) + navegação principal (barra inferior) */}
+      <ProfileButton />
+      <BottomNav />
 
-      {/* Conteúdo */}
+      {/* Conteúdo (padding-bottom extra reserva espaço para a barra inferior) */}
       <main
+        className="relative z-[1] min-h-[100dvh] py-[clamp(24px,5vw,56px)] px-[clamp(16px,5vw,48px)]"
         style={{
-          position:  'relative',
-          zIndex:    1,
-          minHeight: '100dvh',
-          padding:   'clamp(24px, 5vw, 56px) clamp(16px, 5vw, 48px)',
+          paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 96px)',
         }}
       >
-        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-          <Outlet />
+        <div className="max-w-[720px] mx-auto">
+          {/* AnimatePresence + key por rota → o exit do PageTransition dispara
+              ao trocar de página (transição contínua entre telas). */}
+          <AnimatePresence mode="wait" initial={false}>
+            {outlet && cloneElement(outlet, { key: location.pathname })}
+          </AnimatePresence>
         </div>
       </main>
     </div>

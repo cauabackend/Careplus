@@ -1,6 +1,6 @@
 // src/components/PandaMascot/PandaMascot.jsx
-import { motion } from 'framer-motion'
-import { useEffect, useState, useId, useCallback } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { useEffect, useState, useId, useCallback, useRef } from 'react'
 import './PandaMascot.css'
 
 /* sm / md foram reduzidos ~20%; lg ~22% */
@@ -106,6 +106,7 @@ export default function PandaMascot({
 }) {
   const rawId = useId()
   const uid   = rawId.replace(/[^a-zA-Z0-9]/g, '')
+  const reduce = useReducedMotion()
 
   const [activeEvent,  setActiveEvent]  = useState(null)
   const [blinkClosed,  setBlinkClosed]  = useState(false)
@@ -113,6 +114,10 @@ export default function PandaMascot({
   const [glanceDir,    setGlanceDir]    = useState(0)    // -1 | 0 | 1
   const [yawning,      setYawning]      = useState(false)
   const [critStartle,  setCritStartle]  = useState(false)
+  const [track,        setTrack]        = useState({ x: 0, y: 0 }) // olho segue cursor
+
+  const wrapRef = useRef(null)
+  const rafRef  = useRef(0)
 
   const h  = HEALTH[healthState] ?? HEALTH.good
   const px = SIZE_MAP[size] ?? SIZE_MAP.md
@@ -160,6 +165,36 @@ export default function PandaMascot({
     return () => clearTimeout(t)
   }, [healthState])
 
+  /* olhos seguem o cursor (pointer) — desligado em reduced-motion.
+     Usa rAF pra não re-renderizar a cada evento de mouse. */
+  useEffect(() => {
+    if (reduce || typeof window === 'undefined') return
+    const onMove = (e) => {
+      if (rafRef.current) return
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0
+        const el = wrapRef.current
+        if (!el) return
+        const r = el.getBoundingClientRect()
+        if (!r.width) return
+        const cx = r.left + r.width / 2
+        const cy = r.top + r.height / 2
+        const nx = Math.max(-1, Math.min(1, (e.clientX - cx) / (window.innerWidth  / 2)))
+        const ny = Math.max(-1, Math.min(1, (e.clientY - cy) / (window.innerHeight / 2)))
+        const tx = +(nx * 5).toFixed(1)
+        const ty = +(ny * 4).toFixed(1)
+        // bail-out: só re-renderiza quando o alvo (arredondado) muda de fato
+        setTrack(prev => (prev.x === tx && prev.y === ty ? prev : { x: tx, y: ty }))
+      })
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      rafRef.current = 0
+    }
+  }, [reduce])
+
   /* tap / touch reaction — PRESENTE EM TODOS OS ESTADOS */
   const handleTap = useCallback(() => {
     if (tapped) return
@@ -183,11 +218,15 @@ export default function PandaMascot({
   const isCritical  = healthState === 'critical'
   const isLookUp    = isDashboard && activeEvent === 'app_open'
 
-  /* ── Clip-path IDs únicos por instância ─────────────────── */
+  /* ── Clip-path / gradiente IDs únicos por instância ─────── */
   const ID = {
     gs:'gs-'+uid, bd:'bd-'+uid, hd:'hd-'+uid, la:'la-'+uid,
     ra:'ra-'+uid, le:'le-'+uid, re:'re-'+uid, ll:'ll-'+uid,
     rl:'rl-'+uid, epL:'epl-'+uid, epR:'epr-'+uid, mz:'mz-'+uid,
+    /* gradientes / filtro 3D */
+    headG:'hg-'+uid, capeG:'cg-'+uid, bellyG:'blg-'+uid,
+    limbG:'lg2-'+uid, earG:'eg-'+uid, earIn:'ei-'+uid,
+    patchG:'pg-'+uid, soft:'sf-'+uid,
   }
 
   /* ── Braços ─────────────────────────────────────────────── */
@@ -206,22 +245,25 @@ export default function PandaMascot({
     : h.armSwing ? [0, 12, 0]
     : 0
 
-  const loopArms = isDancing || h.armSwing
+  const loopArms = (isDancing || h.armSwing) && !reduce
   const armDur   = isDancing ? 0.52 : 2.2
 
   /* ── Cabeça ─────────────────────────────────────────────── */
-  const headYArr = isChronicle
+  const headYArr = reduce ? 0 : isChronicle
     ? [0, h.bobAmt * 0.3, 0]
     : isDashboard
     ? [-h.bobAmt * 0.5, h.bobAmt * 0.5, -h.bobAmt * 0.5]
     : [-h.bobAmt, h.bobAmt, -h.bobAmt]
 
   /* inclinação: weak inclina pro braço, chronicle balança, outros fixos */
-  const headRotate = isChronicle ? [-2, 2, -2] : isWeak ? [6, 10, 6] : 0
+  const headRotate = isWeak ? (reduce ? 8 : [6, 10, 6])
+    : reduce ? 0
+    : isChronicle ? [-2, 2, -2]
+    : 0
 
-  /* ── Pupilas ─────────────────────────────────────────────── */
-  const pupilDy = isLookUp ? -9 : 0
-  const pupilDx = glanceDir * 5
+  /* ── Pupilas (glance + lookup + segue cursor) ───────────── */
+  const pupilDy = (isLookUp ? -9 : 0) + track.y
+  const pupilDx = glanceDir * 5 + track.x
 
   /* ── Boca ───────────────────────────────────────────────── */
   /* bocejo sobrescreve a boca do warning */
@@ -248,6 +290,9 @@ export default function PandaMascot({
   } else if (activeEvent && EVENT_ANIM[activeEvent]) {
     outerAnim       = EVENT_ANIM[activeEvent]
     outerTransition = { duration: EVENT_DUR[activeEvent] / 1000, ease: 'easeOut' }
+  } else if (reduce) {
+    outerAnim       = { y: 0 }
+    outerTransition = { duration: 0.3 }
   } else {
     outerAnim       = { y: [-h.floatAmt, h.floatAmt, -h.floatAmt] }
     outerTransition = { duration: h.floatDur, repeat: Infinity, ease: 'easeInOut' }
@@ -255,12 +300,17 @@ export default function PandaMascot({
 
   return (
     <div
+      ref={wrapRef}
       style={{ position: 'relative', display: 'inline-block' }}
       onClick={handleTap}
     >
       {/* ── Balão de fala ───────────────────────────────────── */}
       {speechText && (
-        <div style={{
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          style={{
           position: 'absolute', bottom: '100%', left: '50%',
           transform: 'translateX(-50%)', marginBottom: '14px',
           background: 'var(--card-bg)', border: '1px solid var(--accent)',
@@ -284,6 +334,7 @@ export default function PandaMascot({
       <motion.div
         animate={{ scale: isShy ? 0.87 : 1 }}
         transition={{ duration: 0.5 }}
+        whileTap={{ scale: isShy ? 0.82 : 0.94 }}
         style={{ display: 'inline-block', cursor: 'pointer' }}
       >
         {/* ── Float / event / tap ─────────────────────────── */}
@@ -310,6 +361,45 @@ export default function PandaMascot({
                 <stop offset="0%"   stopColor="rgba(0,0,0,.55)" />
                 <stop offset="100%" stopColor="rgba(0,0,0,0)" />
               </radialGradient>
+
+              {/* ── Gradientes de volume (luz vinda de cima-esquerda) ── */}
+              <radialGradient id={ID.headG} cx="38%" cy="30%" r="78%">
+                <stop offset="0%"   stopColor="#FFFFFF" />
+                <stop offset="55%"  stopColor="#F3F0EB" />
+                <stop offset="100%" stopColor="#D8D3CB" />
+              </radialGradient>
+              <radialGradient id={ID.bellyG} cx="50%" cy="36%" r="70%">
+                <stop offset="0%"   stopColor="#FFFFFF" />
+                <stop offset="68%"  stopColor="#F1EEE8" />
+                <stop offset="100%" stopColor="#D9D3CA" />
+              </radialGradient>
+              <linearGradient id={ID.capeG} x1="0" y1="0" x2="0.15" y2="1">
+                <stop offset="0%"   stopColor="#3A3A46" />
+                <stop offset="50%"  stopColor="#20202A" />
+                <stop offset="100%" stopColor="#141019" />
+              </linearGradient>
+              <linearGradient id={ID.limbG} x1="0.1" y1="0" x2="0.5" y2="1">
+                <stop offset="0%"   stopColor="#35353F" />
+                <stop offset="58%"  stopColor="#1E1E27" />
+                <stop offset="100%" stopColor="#121119" />
+              </linearGradient>
+              <radialGradient id={ID.earG} cx="42%" cy="35%" r="72%">
+                <stop offset="0%"   stopColor="#35353F" />
+                <stop offset="100%" stopColor="#16161D" />
+              </radialGradient>
+              <radialGradient id={ID.earIn} cx="50%" cy="48%" r="58%">
+                <stop offset="0%"   stopColor="#F6BD91" />
+                <stop offset="60%"  stopColor="#E8A87C" />
+                <stop offset="100%" stopColor="#C8825A" />
+              </radialGradient>
+              <radialGradient id={ID.patchG} cx="42%" cy="33%" r="74%">
+                <stop offset="0%"   stopColor="#2C2C36" />
+                <stop offset="100%" stopColor="#0E0E15" />
+              </radialGradient>
+              <filter id={ID.soft} x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="3.5" />
+              </filter>
+
               <clipPath id={ID.bd}><rect x="54" y="212" width="192" height="182" rx="58" ry="54" /></clipPath>
               <clipPath id={ID.hd}><circle cx="150" cy="112" r="94" /></clipPath>
               <clipPath id={ID.la}><rect x="10" y="228" width="58" height="90" rx="28" transform="rotate(-12,39,273)" /></clipPath>
@@ -323,22 +413,22 @@ export default function PandaMascot({
               <clipPath id={ID.mz}><ellipse cx="150" cy="162" rx="34" ry="23" /></clipPath>
             </defs>
 
-            {/* Sombra no chão */}
-            <ellipse cx="150" cy="440" rx="88" ry="10" fill={`url(#${ID.gs})`} />
+            {/* Sombra no chão (com blur suave) */}
+            <ellipse cx="150" cy="440" rx="88" ry="10" fill={`url(#${ID.gs})`} filter={`url(#${ID.soft})`} />
 
             {/* ── Orelhas ──────────────────────────────────── */}
             <motion.g
-              animate={{ y: [0, h.earDy, 0] }}
-              transition={{ duration: h.bobDur, repeat: Infinity, ease: 'easeInOut' }}
+              animate={{ y: reduce ? 0 : [0, h.earDy, 0] }}
+              transition={{ duration: h.bobDur, repeat: reduce ? 0 : Infinity, ease: 'easeInOut' }}
             >
-              <circle cx="68"  cy="40" r="26" fill="#1A1828" stroke="#0D0C1A" strokeWidth="4" />
-              <circle cx="68"  cy="46" r="14" fill="#12101E" />
-              <ellipse cx="63" cy="33" rx="9" ry="5" fill="rgba(255,255,255,.09)" clipPath={`url(#${ID.le})`} />
+              <circle cx="68"  cy="40" r="26" fill={`url(#${ID.earG})`} stroke="#0D0C1A" strokeWidth="4" />
+              <ellipse cx="68" cy="44" rx="11" ry="12" fill={`url(#${ID.earIn})`} />
+              <ellipse cx="63" cy="33" rx="9" ry="5" fill="rgba(255,255,255,.16)" clipPath={`url(#${ID.le})`} />
               <circle cx="46"  cy="40" r="23" className="panda-rl" clipPath={`url(#${ID.le})`} />
 
-              <circle cx="232" cy="40" r="26" fill="#1A1828" stroke="#0D0C1A" strokeWidth="4" />
-              <circle cx="232" cy="46" r="14" fill="#12101E" />
-              <ellipse cx="237" cy="33" rx="9" ry="5" fill="rgba(255,255,255,.09)" clipPath={`url(#${ID.re})`} />
+              <circle cx="232" cy="40" r="26" fill={`url(#${ID.earG})`} stroke="#0D0C1A" strokeWidth="4" />
+              <ellipse cx="232" cy="44" rx="11" ry="12" fill={`url(#${ID.earIn})`} />
+              <ellipse cx="237" cy="33" rx="9" ry="5" fill="rgba(255,255,255,.16)" clipPath={`url(#${ID.re})`} />
             </motion.g>
 
             {/* ── Pernas ───────────────────────────────────── */}
@@ -347,92 +437,95 @@ export default function PandaMascot({
               <>
                 <motion.g
                   style={{ transformOrigin: '114px 368px' }}
-                  animate={{ rotate: [-12, 12, -12] }}
-                  transition={{ duration: 1.7, repeat: Infinity, ease: 'easeInOut' }}
+                  animate={{ rotate: reduce ? 0 : [-12, 12, -12] }}
+                  transition={{ duration: 1.7, repeat: reduce ? 0 : Infinity, ease: 'easeInOut' }}
                 >
-                  <rect x="84"  y="368" width="60" height="52" rx="26" fill="#1A1828" stroke="#0D0C1A" strokeWidth="4" />
-                  <ellipse cx="114" cy="377" rx="18" ry="6" fill="rgba(255,255,255,.10)" clipPath={`url(#${ID.ll})`} />
+                  <rect x="84"  y="368" width="60" height="52" rx="26" fill={`url(#${ID.limbG})`} stroke="#0D0C1A" strokeWidth="4" />
+                  <ellipse cx="114" cy="377" rx="18" ry="6" fill="rgba(255,255,255,.14)" clipPath={`url(#${ID.ll})`} />
                   <rect x="84"  y="368" width="26" height="52" rx="22" className="panda-rl" clipPath={`url(#${ID.ll})`} />
                 </motion.g>
                 <motion.g
                   style={{ transformOrigin: '186px 368px' }}
-                  animate={{ rotate: [12, -12, 12] }}
-                  transition={{ duration: 1.7, repeat: Infinity, ease: 'easeInOut' }}
+                  animate={{ rotate: reduce ? 0 : [12, -12, 12] }}
+                  transition={{ duration: 1.7, repeat: reduce ? 0 : Infinity, ease: 'easeInOut' }}
                 >
-                  <rect x="156" y="368" width="60" height="52" rx="26" fill="#1A1828" stroke="#0D0C1A" strokeWidth="4" />
-                  <ellipse cx="186" cy="377" rx="18" ry="6" fill="rgba(255,255,255,.10)" clipPath={`url(#${ID.rl})`} />
+                  <rect x="156" y="368" width="60" height="52" rx="26" fill={`url(#${ID.limbG})`} stroke="#0D0C1A" strokeWidth="4" />
+                  <ellipse cx="186" cy="377" rx="18" ry="6" fill="rgba(255,255,255,.14)" clipPath={`url(#${ID.rl})`} />
                 </motion.g>
               </>
             ) : (
               /* Demais poses: pernas estáticas */
               <>
-                <rect x="84"  y="368" width="60" height="52" rx="26" fill="#1A1828" stroke="#0D0C1A" strokeWidth="4" />
-                <ellipse cx="114" cy="377" rx="18" ry="6" fill="rgba(255,255,255,.10)" clipPath={`url(#${ID.ll})`} />
+                <rect x="84"  y="368" width="60" height="52" rx="26" fill={`url(#${ID.limbG})`} stroke="#0D0C1A" strokeWidth="4" />
+                <ellipse cx="114" cy="377" rx="18" ry="6" fill="rgba(255,255,255,.14)" clipPath={`url(#${ID.ll})`} />
                 <rect x="84"  y="368" width="26" height="52" rx="22" className="panda-rl" clipPath={`url(#${ID.ll})`} />
-                <rect x="156" y="368" width="60" height="52" rx="26" fill="#1A1828" stroke="#0D0C1A" strokeWidth="4" />
-                <ellipse cx="186" cy="377" rx="18" ry="6" fill="rgba(255,255,255,.10)" clipPath={`url(#${ID.rl})`} />
+                <rect x="156" y="368" width="60" height="52" rx="26" fill={`url(#${ID.limbG})`} stroke="#0D0C1A" strokeWidth="4" />
+                <ellipse cx="186" cy="377" rx="18" ry="6" fill="rgba(255,255,255,.14)" clipPath={`url(#${ID.rl})`} />
               </>
             )}
 
             {/* ── Corpo / barriga (respira) ─────────────────── */}
             <motion.g
               style={{ transformOrigin: '152px 294px' }}
-              animate={{ scaleY: [1, 1 + h.breathAmt, 1] }}
-              transition={{ duration: h.breathDur, repeat: Infinity, ease: 'easeInOut' }}
+              animate={{ scaleY: reduce ? 1 : [1, 1 + h.breathAmt, 1] }}
+              transition={{ duration: h.breathDur, repeat: reduce ? 0 : Infinity, ease: 'easeInOut' }}
             >
-              <rect x="54" y="212" width="192" height="182" rx="58" ry="54" fill="#1A1828" stroke="#0D0C1A" strokeWidth="4" />
+              <rect x="54" y="212" width="192" height="182" rx="58" ry="54" fill={`url(#${ID.capeG})`} stroke="#0D0C1A" strokeWidth="4" />
               <rect x="54" y="212" width="88"  height="182" rx="56" ry="54" className="panda-rl" clipPath={`url(#${ID.bd})`} />
-              <ellipse cx="150" cy="220" rx="56" ry="11" fill="rgba(255,255,255,.06)" clipPath={`url(#${ID.bd})`} />
-              <ellipse cx="152" cy="294" rx="70" ry="80" fill="#FFFFFF" stroke="#0D0C1A" strokeWidth="3" />
+              <ellipse cx="150" cy="220" rx="56" ry="11" fill="rgba(255,255,255,.10)" clipPath={`url(#${ID.bd})`} />
+              <ellipse cx="152" cy="294" rx="70" ry="80" fill={`url(#${ID.bellyG})`} stroke="#0D0C1A" strokeWidth="3" />
+              <ellipse cx="152" cy="232" rx="58" ry="20" fill="rgba(0,0,0,.10)" clipPath={`url(#${ID.bd})`} />
               <ellipse cx="152" cy="362" rx="46" ry="16" fill="rgba(0,0,0,.07)" clipPath={`url(#${ID.bd})`} />
             </motion.g>
 
             {/* ── Braço esquerdo ───────────────────────────── */}
             <motion.g
               style={{ transformOrigin: '39px 245px' }}
-              animate={{ rotate: leftArmRot }}
+              animate={{ rotate: reduce && Array.isArray(leftArmRot) ? 0 : leftArmRot }}
               transition={loopArms
                 ? { duration: armDur, repeat: Infinity, ease: 'easeInOut' }
                 : { duration: 0.45 }
               }
             >
-              <rect x="10" y="228" width="58" height="90" rx="28" transform="rotate(-12,39,273)" fill="#1A1828" stroke="#0D0C1A" strokeWidth="4" />
+              <rect x="10" y="228" width="58" height="90" rx="28" transform="rotate(-12,39,273)" fill={`url(#${ID.limbG})`} stroke="#0D0C1A" strokeWidth="4" />
               <rect x="10" y="228" width="28" height="90" rx="22" transform="rotate(-12,39,273)" className="panda-rl" clipPath={`url(#${ID.la})`} />
-              <rect x="56" y="233" width="8"  height="80" rx="4"  transform="rotate(-12,60,273)" fill="rgba(255,255,255,.10)" clipPath={`url(#${ID.la})`} />
+              <rect x="56" y="233" width="8"  height="80" rx="4"  transform="rotate(-12,60,273)" fill="rgba(255,255,255,.14)" clipPath={`url(#${ID.la})`} />
             </motion.g>
 
             {/* ── Braço direito ─────────────────────────────── */}
             <motion.g
               style={{ transformOrigin: '261px 245px' }}
-              animate={{ rotate: rightArmRot }}
+              animate={{ rotate: reduce && Array.isArray(rightArmRot) ? 0 : rightArmRot }}
               transition={loopArms && !isPointing
                 ? { duration: armDur, repeat: Infinity, ease: 'easeInOut', delay: isDancing ? 0.26 : 0 }
                 : { duration: 0.55 }
               }
             >
-              <rect x="232" y="228" width="58" height="90" rx="28" transform="rotate(12,261,273)" fill="#1A1828" stroke="#0D0C1A" strokeWidth="4" />
+              <rect x="232" y="228" width="58" height="90" rx="28" transform="rotate(12,261,273)" fill={`url(#${ID.limbG})`} stroke="#0D0C1A" strokeWidth="4" />
               <rect x="262" y="228" width="28" height="90" rx="22" transform="rotate(12,261,273)" className="panda-rl" clipPath={`url(#${ID.ra})`} />
-              <rect x="236" y="233" width="8"  height="80" rx="4"  transform="rotate(12,240,273)" fill="rgba(255,255,255,.10)" clipPath={`url(#${ID.ra})`} />
+              <rect x="236" y="233" width="8"  height="80" rx="4"  transform="rotate(12,240,273)" fill="rgba(255,255,255,.14)" clipPath={`url(#${ID.ra})`} />
             </motion.g>
 
             {/* ── Cabeça ────────────────────────────────────── */}
             <motion.g
               style={{ transformOrigin: '150px 112px' }}
               animate={{ y: headYArr, rotate: headRotate }}
-              transition={{ duration: h.bobDur, repeat: Infinity, ease: 'easeInOut' }}
+              transition={{ duration: h.bobDur, repeat: reduce ? 0 : Infinity, ease: 'easeInOut' }}
             >
               {/* Cabeça base */}
-              <circle cx="150" cy="112" r="94" fill="#F8F6F2" stroke="#0D0C1A" strokeWidth="4" />
+              <circle cx="150" cy="112" r="94" fill={`url(#${ID.headG})`} stroke="#0D0C1A" strokeWidth="4" />
               <ellipse cx="184" cy="66" rx="24" ry="15" fill="rgba(255,255,255,.60)" clipPath={`url(#${ID.hd})`} />
               <ellipse cx="188" cy="62" rx="10" ry="6"  fill="rgba(255,255,255,.90)" clipPath={`url(#${ID.hd})`} />
+              {/* Sombra de oclusão na base da cabeça */}
+              <ellipse cx="150" cy="196" rx="62" ry="20" fill="rgba(0,0,0,.12)" clipPath={`url(#${ID.hd})`} />
               {/* Sombra do pescoço */}
               <ellipse cx="150" cy="200" rx="38" ry="8" fill="rgba(0,0,0,.17)" />
 
               {/* Manchas dos olhos */}
-              <ellipse cx="107" cy="118" rx="37" ry="31" transform="rotate(-8,107,118)" fill="#1A1828" stroke="#0D0C1A" strokeWidth="3" />
-              <ellipse cx="100" cy="103" rx="15" ry="7"  transform="rotate(-8,100,103)" fill="rgba(255,255,255,.12)" clipPath={`url(#${ID.epL})`} />
-              <ellipse cx="193" cy="118" rx="37" ry="31" transform="rotate(8,193,118)"  fill="#1A1828" stroke="#0D0C1A" strokeWidth="3" />
-              <ellipse cx="200" cy="103" rx="15" ry="7"  transform="rotate(8,200,103)"  fill="rgba(255,255,255,.12)" clipPath={`url(#${ID.epR})`} />
+              <ellipse cx="107" cy="118" rx="37" ry="31" transform="rotate(-8,107,118)" fill={`url(#${ID.patchG})`} stroke="#0D0C1A" strokeWidth="3" />
+              <ellipse cx="100" cy="103" rx="15" ry="7"  transform="rotate(-8,100,103)" fill="rgba(255,255,255,.16)" clipPath={`url(#${ID.epL})`} />
+              <ellipse cx="193" cy="118" rx="37" ry="31" transform="rotate(8,193,118)"  fill={`url(#${ID.patchG})`} stroke="#0D0C1A" strokeWidth="3" />
+              <ellipse cx="200" cy="103" rx="15" ry="7"  transform="rotate(8,200,103)"  fill="rgba(255,255,255,.16)" clipPath={`url(#${ID.epR})`} />
 
               {/* Brancos dos olhos */}
               <circle cx="107" cy="119" r="19" fill="#FFFFFF" />

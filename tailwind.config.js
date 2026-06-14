@@ -5,10 +5,16 @@ export default {
     extend: {
       fontFamily: {
         jakarta: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Instrument Serif"', 'Georgia', 'serif'],
+      },
+      colors: {
+        accent: 'var(--accent)',
+        reward: 'var(--accent-reward)',
       },
       borderRadius: {
-        '2xl': '1rem',
-        '3xl': '1.5rem',
+        sm: 'var(--radius-sm)',
+        md: 'var(--radius-md)',
+        lg: 'var(--radius-lg)',
       },
       keyframes: {
         shimmer: {

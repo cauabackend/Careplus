@@ -9,23 +9,23 @@ describe('PandaMascot', () => {
     expect(svg).toBeInTheDocument();
   });
 
-  it('renderiza em tamanho lg (270px)', () => {
+  it('renderiza em tamanho lg (210px)', () => {
     const { container } = render(<PandaMascot size="lg" />);
     const svg = container.querySelector('svg');
-    expect(svg).toHaveAttribute('width', '270');
+    expect(svg).toHaveAttribute('width', '210');
   });
 
-  it('renderiza em tamanho sm (120px)', () => {
+  it('renderiza em tamanho sm (78px)', () => {
     const { container } = render(<PandaMascot size="sm" />);
     const svg = container.querySelector('svg');
-    expect(svg).toHaveAttribute('width', '120');
+    expect(svg).toHaveAttribute('width', '78');
   });
 
   it('não exibe pálpebras em estado excellent', () => {
     const { container } = render(<PandaMascot healthState="excellent" />);
     const svg = container.querySelector('svg');
     const eyelids = Array.from(svg.querySelectorAll('ellipse')).filter(
-      el => el.getAttribute('cx') === '107' && el.getAttribute('cy') === '112'
+      el => el.getAttribute('cx') === '107' && el.getAttribute('cy') === '111'
     );
     expect(eyelids).toHaveLength(0);
   });
@@ -34,7 +34,7 @@ describe('PandaMascot', () => {
     const { container } = render(<PandaMascot healthState="critical" />);
     const svg = container.querySelector('svg');
     const eyelids = Array.from(svg.querySelectorAll('ellipse')).filter(
-      el => el.getAttribute('cx') === '107' && el.getAttribute('cy') === '112'
+      el => el.getAttribute('cx') === '107' && el.getAttribute('cy') === '111'
     );
     expect(eyelids).toHaveLength(1);
   });

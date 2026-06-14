@@ -23,63 +23,36 @@ export default function StatCard({ label, valor, Icone, suffix = '' }) {
 
   return (
     <motion.article
-      whileHover={{ scale: 1.03, y: -2 }}
+      whileHover={{ y: -2, borderColor: 'var(--accent)' }}
       transition={{ type: 'spring', stiffness: 340, damping: 22 }}
-      className="glass"
+      className="glass rounded-lg flex flex-col gap-3 py-4 px-[18px] cursor-default"
       style={{
-        borderRadius: '18px',
-        padding: '16px 18px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
-        cursor: 'default',
+        boxShadow: 'var(--shadow-1)',
       }}
     >
-      {/* Ícone */}
-      <div style={{
-        width: '36px', height: '36px',
-        borderRadius: '10px',
-        background: 'var(--accent-soft)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        flexShrink: 0,
-      }}>
-        <Icone size={17} strokeWidth={2} style={{ color: 'var(--accent)' }} />
-      </div>
-
-      {/* Valor */}
-      <div>
-        <div style={{
-          fontSize: '1.45rem',
-          fontWeight: '800',
-          color: 'var(--text-primary)',
-          letterSpacing: '-0.02em',
-          lineHeight: 1,
-        }}>
-          <AnimatedNumber target={numVal} />
-          {suffix && (
-            <span style={{ fontSize: '0.9rem', fontWeight: '600', marginLeft: '2px' }}>
-              {suffix}
-            </span>
-          )}
-        </div>
-        <div style={{
-          fontSize: '0.62rem',
-          fontWeight: '700',
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: 'var(--text-muted)',
-          marginTop: '4px',
-        }}>
+      {/* Ícone plano (sem caixinha) + label na mesma linha */}
+      <div className="flex items-center gap-[7px]">
+        <Icone size={15} strokeWidth={1.6} style={{ color: 'var(--accent)' }} />
+        <span className="text-[0.62rem] font-bold tracking-[0.16em] uppercase text-[var(--text-muted)]">
           {label}
-        </div>
+        </span>
       </div>
 
-      {/* Linha de brilho inferior */}
-      <div style={{
-        height: '1px',
+      {/* Valor em fonte de display */}
+      <div className="text-[2.1rem] font-normal text-[var(--text-primary)] tracking-[0] leading-[0.95]" style={{
+        fontFamily: 'var(--font-display)',
+      }}>
+        <AnimatedNumber target={numVal} />
+        {suffix && (
+          <span className="text-[1.1rem] text-[var(--text-muted)] ml-[3px]">
+            {suffix}
+          </span>
+        )}
+      </div>
+
+      {/* Linha de brilho inferior (divisor delicado) */}
+      <div className="h-px opacity-40" style={{
         background: 'linear-gradient(90deg, var(--accent), transparent)',
-        opacity: 0.4,
-        borderRadius: '999px',
       }} />
     </motion.article>
   )

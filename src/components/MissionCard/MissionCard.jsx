@@ -11,76 +11,33 @@ export default function MissionCard({ titulo, Icone, meta, atual, unidade, ponto
     <motion.article
       whileHover={{ scale: 1.02, y: -2 }}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-      className="glass"
+      className="glass rounded-lg p-[18px] flex flex-col gap-[14px] relative overflow-hidden"
       style={{
-        borderRadius: '18px',
-        padding: '18px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '14px',
-        position: 'relative',
-        overflow: 'hidden',
+        /* conclusão: borda-topo acende no acento, sem inundar o fundo */
+        borderTop: concluida ? '2px solid var(--accent)' : undefined,
       }}
     >
-      {/* Brilho de fundo quando concluída */}
-      {concluida && (
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'var(--accent-soft)',
-          pointerEvents: 'none',
-        }} />
-      )}
-
       {/* Cabeçalho */}
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '34px', height: '34px',
-            borderRadius: '10px',
-            background: 'var(--accent-soft)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}>
-            <Icone size={16} strokeWidth={2} style={{ color: 'var(--accent)' }} />
-          </div>
-          <span style={{
-            fontSize: '0.85rem',
-            fontWeight: '700',
-            color: 'var(--text-primary)',
-          }}>
+      <header className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-[9px]">
+          <Icone size={16} strokeWidth={1.5} className="shrink-0" style={{ color: 'var(--accent)' }} />
+          <span className="text-[0.85rem] font-bold text-[var(--text-primary)]">
             {titulo}
           </span>
         </div>
 
         {concluida && (
-          <div style={{
-            fontSize: '0.6rem',
-            fontWeight: '800',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--accent)',
-            background: 'var(--accent-soft)',
-            border: '1px solid var(--accent)',
-            borderRadius: '999px',
-            padding: '3px 10px',
-            flexShrink: 0,
-          }}>
-            Feito
+          <div className="text-[0.6rem] font-extrabold tracking-[0.12em] uppercase text-[var(--accent)] shrink-0">
+            ✓ Feito
           </div>
         )}
       </header>
 
       {/* Progresso */}
       <div>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          fontSize: '0.72rem',
-          color: 'var(--text-muted)',
-          marginBottom: '6px',
-        }}>
+        <div className="flex justify-between text-[0.72rem] text-[var(--text-muted)] mb-[6px]">
           <span>{label}</span>
-          <span style={{ color: pct >= 100 ? 'var(--accent)' : 'var(--text-muted)', fontWeight: 700 }}>
+          <span className="font-bold" style={{ color: pct >= 100 ? 'var(--accent)' : 'var(--text-muted)' }}>
             {pct}%
           </span>
         </div>
@@ -96,12 +53,7 @@ export default function MissionCard({ titulo, Icone, meta, atual, unidade, ponto
       </div>
 
       {/* Rodapé */}
-      <footer style={{
-        fontSize: '0.65rem',
-        fontWeight: '600',
-        color: 'var(--text-muted)',
-        letterSpacing: '0.04em',
-      }}>
+      <footer className="text-[0.65rem] font-semibold text-[var(--text-muted)] tracking-[0.04em]">
         +{pontos} pts ao completar
       </footer>
     </motion.article>
