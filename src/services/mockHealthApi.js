@@ -26,16 +26,17 @@ const PERFIS = [
   { nome: 'Excelente', passos: 10000, agua: 3.5, sono: 8.5, batimentos: 63,  spo2: 99, temperatura: 36.5 },
 ]
 
+// Modo Edge: se VITE_EDGE_URL estiver definida (ex.: http://localhost:1880/telemetria),
+// o app busca a telemetria REAL do Node-RED (ESP32 → MQTT → Node-RED). Vazia = usa o mock.
+const EDGE_URL = import.meta.env.VITE_EDGE_URL
+
 let indicePerfil = 0
 
-export async function buscarDadosSaude() {
-  await new Promise(resolve => setTimeout(resolve, 1000))
-
+/** Lê o próximo perfil simulado, ciclando pelos 5 estados de saúde. */
+function lerMock() {
   const perfil = PERFIS[indicePerfil]
   indicePerfil = (indicePerfil + 1) % PERFIS.length
-
   console.info(`[mockHealthApi] → perfil "${perfil.nome}" (próximo: ${PERFIS[indicePerfil].nome})`, perfil)
-
   return {
     passos:      perfil.passos,
     agua:        perfil.agua,
@@ -46,4 +47,32 @@ export async function buscarDadosSaude() {
     fonte:       'Google Health',
     dataSync:    new Date().toISOString(),
   }
+}
+
+export async function buscarDadosSaude() {
+  // Modo Edge — telemetria real do dispositivo via Node-RED.
+  if (EDGE_URL) {
+    try {
+      const res = await fetch(EDGE_URL, { headers: { Accept: 'application/json' } })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const t = await res.json()
+      return {
+        passos:      Number(t.passos) || 0,
+        agua:        Number(t.agua)   || 0,
+        sono:        Number(t.sono)   || 0,
+        batimentos:  t.batimentos  != null ? Number(t.batimentos)  : undefined,
+        spo2:        t.spo2        != null ? Number(t.spo2)        : undefined,
+        temperatura: t.temperatura != null ? Number(t.temperatura) : undefined,
+        fonte:       'CarePlus Band (ESP32)',
+        dataSync:    new Date().toISOString(),
+      }
+    } catch (e) {
+      // Dispositivo/Node-RED indisponível → cai na simulação para não travar a demo.
+      console.warn('[edge] telemetria indisponível, usando simulação:', e.message)
+    }
+  }
+
+  // Modo mock (padrão) — simula latência e cicla pelos 5 estados.
+  await new Promise(resolve => setTimeout(resolve, 1000))
+  return lerMock()
 }

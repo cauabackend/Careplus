@@ -23,6 +23,8 @@ O app **não depende de backend**: ele consome uma **API local simulada em forma
 - A camada [`src/services/api.js`](src/services/api.js) expõe a mesma interface de uma API REST (`login`, `getProgresso`, `concluirMissao`, etc.), aplicando as regras de negócio (pontos, badges, streak, chronicle, chains) e persistindo o estado no **`localStorage`** do navegador.
 - Toda a sincronização de saúde (passos/água/sono) é simulada em [`src/services/mockHealthApi.js`](src/services/mockHealthApi.js), imitando uma integração com Google Health.
 
+> **Modo Edge (opcional):** defina `VITE_EDGE_URL` (veja [`.env.example`](.env.example)) apontando para o endpoint `GET /telemetria` do Node-RED para o app consumir a telemetria **real** do dispositivo ESP32 em vez do mock. Sem a variável, usa o mock. Se o dispositivo estiver offline, cai automaticamente no mock.
+
 Como tudo roda no cliente, o projeto **publica no Vercel sem servidor** e funciona offline após o primeiro carregamento.
 
 ### Conta de demonstração
