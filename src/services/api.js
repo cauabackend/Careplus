@@ -13,7 +13,7 @@
 import seed from '../data/db.json'
 
 // ── Chaves de armazenamento ────────────────────────────────────
-const DB_KEY  = 'cp_db_v3'   // base de dados completa (JSON) — bump força re-seed
+const DB_KEY  = 'cp_db_v4'   // base de dados completa (JSON) — bump força re-seed
 const UID_KEY = 'cp_uid'     // id do usuário logado
 
 // ── Regras de negócio (espelham src/data/constants.js) ──────────
@@ -81,6 +81,7 @@ function carregarDb() {
     progressos: seed.progressos.map(p => ({
       id: p.id, usuario_id: p.usuario_id, data: isoDeDiasAtras(p.dias_atras),
       passos: p.passos, agua: p.agua, sono: p.sono, fonte: p.fonte,
+      batimentos: p.batimentos, spo2: p.spo2, temperatura: p.temperatura,
     })),
     missoes: seed.missoes.map(m => ({
       id: m.id, usuario_id: m.usuario_id, chave_missao: m.chave_missao,
@@ -222,7 +223,11 @@ async function updateUsuario({ first_name }) {
 // ════════════════════════════════════════════════════════════════
 
 function recortarProgresso(p) {
-  return { id: p.id, data: p.data, passos: p.passos, agua: p.agua, sono: p.sono, fonte: p.fonte }
+  return {
+    id: p.id, data: p.data, passos: p.passos, agua: p.agua, sono: p.sono, fonte: p.fonte,
+    // Sinais vitais (read-only no dashboard); podem ser undefined em dias sem leitura.
+    batimentos: p.batimentos, spo2: p.spo2, temperatura: p.temperatura,
+  }
 }
 
 async function getProgresso() {
@@ -232,7 +237,8 @@ async function getProgresso() {
   return responder(p ? recortarProgresso(p) : null)
 }
 
-async function salvarProgresso({ passos = 0, agua = 0, sono = 0, fonte = 'Manual' }) {
+async function salvarProgresso({ passos = 0, agua = 0, sono = 0, fonte = 'Manual',
+                                 batimentos, spo2, temperatura }) {
   // Validações equivalentes às do backend.
   if (passos < 0) throw erroApi({ passos: ['Passos não pode ser negativo.'] })
   if (agua < 0 || agua > 20) throw erroApi({ agua: ['Valor de água improvável (0–20L).'] })
@@ -250,6 +256,10 @@ async function salvarProgresso({ passos = 0, agua = 0, sono = 0, fonte = 'Manual
   p.agua = agua
   p.sono = sono
   p.fonte = fonte
+  // Sinais vitais: só atualiza quando vierem na leitura (não apaga os existentes).
+  if (batimentos != null) p.batimentos = batimentos
+  if (spo2 != null) p.spo2 = spo2
+  if (temperatura != null) p.temperatura = temperatura
   salvarDb(db)
   return responder(recortarProgresso(p))
 }

@@ -1,7 +1,7 @@
 // src/pages/DashboardPage/DashboardPage.jsx
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Star, Zap, Award, CheckCircle2, ArrowRight } from 'lucide-react'
+import { Star, Zap, Award, CheckCircle2, ArrowRight, HeartPulse, Wind, Thermometer } from 'lucide-react'
 import { useAuth }         from '../../context/AuthContext'
 import { api }             from '../../services/api'
 import StatCard            from '../../components/StatCard/StatCard'
@@ -93,6 +93,13 @@ export default function DashboardPage() {
   }
   const missoesConcluidas = Array.isArray(missoes) ? missoes.map(m => m.chave_missao) : []
 
+  // Sinais vitais do dia (read-only) — vêm da telemetria do wearable.
+  const vitais = [
+    { key: 'bpm',  Icone: HeartPulse,  label: 'Batimentos',  unidade: 'bpm', valor: progresso?.batimentos },
+    { key: 'spo2', Icone: Wind,        label: 'SpO₂',         unidade: '%',   valor: progresso?.spo2 },
+    { key: 'temp', Icone: Thermometer, label: 'Temperatura',  unidade: '°C',  valor: progresso?.temperatura },
+  ]
+
   const speechText = fala
 
   // Séries dos últimos 7 dias (defensivo: forma/ordem do backend é desconhecida)
@@ -164,6 +171,36 @@ export default function DashboardPage() {
             <StatCard label="Badges"  valor={usuario.badges_count ?? 0}   Icone={Award}        />
             <StatCard label="Missões" valor={missoesConcluidas.length}     Icone={CheckCircle2} />
           </>
+        )}
+      </section>
+
+      {/* Sinais Vitais — leitura do wearable (read-only, não é missão) */}
+      <section aria-label="Sinais vitais" className="mb-7">
+        <div className="text-[0.6rem] font-bold tracking-[0.22em] uppercase text-[var(--text-muted)] mb-2">
+          Sinais Vitais
+        </div>
+        {loadingData ? (
+          <div className="shimmer-block glass rounded-lg h-[92px] overflow-hidden" />
+        ) : (
+          <div className="glass rounded-lg p-[18px] flex items-center justify-between gap-2">
+            {vitais.map(({ key, Icone, label, unidade, valor }, i) => (
+              <div
+                key={key}
+                className={`flex-1 flex flex-col items-center gap-1.5 ${i > 0 ? 'border-l border-[var(--card-border)]' : ''}`}
+              >
+                <Icone size={17} className="text-[var(--accent)]" strokeWidth={1.75} />
+                <div className="font-[family-name:var(--font-display)] text-[1.5rem] leading-none text-[var(--text-primary)]">
+                  {valor ?? '—'}
+                  {valor != null && (
+                    <span className="text-[0.62rem] font-semibold text-[var(--text-muted)] ml-0.5">{unidade}</span>
+                  )}
+                </div>
+                <div className="text-[0.58rem] font-bold tracking-[0.1em] uppercase text-[var(--text-muted)]">
+                  {label}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </section>
 

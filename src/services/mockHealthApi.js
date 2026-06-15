@@ -15,12 +15,15 @@
  * │ 5 Excelente │ 10000  │  3.5 │  8.5 │  100  │ excellent │ todas (passos+água+sono) │
  * └─────────────┴────────┴──────┴──────┴───────┴───────────┴──────────────────────────┘
  */
+// Cada perfil inclui também sinais vitais (batimentos, SpO2, temperatura) que
+// acompanham o estado de saúde — pior estado = mais batimentos, menos SpO2 e
+// mais febre. São exibidos no dashboard (read-only), não viram missão.
 const PERFIS = [
-  { nome: 'Crítico',   passos: 200,   agua: 0.1, sono: 4.0 },
-  { nome: 'Fraco',     passos: 800,   agua: 0.4, sono: 4.2 },
-  { nome: 'Normal',    passos: 2500,  agua: 0.8, sono: 5.0 },
-  { nome: 'Bom',       passos: 5500,  agua: 1.5, sono: 7.2 },
-  { nome: 'Excelente', passos: 10000, agua: 3.5, sono: 8.5 },
+  { nome: 'Crítico',   passos: 200,   agua: 0.1, sono: 4.0, batimentos: 122, spo2: 90, temperatura: 38.6 },
+  { nome: 'Fraco',     passos: 800,   agua: 0.4, sono: 4.2, batimentos: 104, spo2: 93, temperatura: 37.8 },
+  { nome: 'Normal',    passos: 2500,  agua: 0.8, sono: 5.0, batimentos: 88,  spo2: 96, temperatura: 37.1 },
+  { nome: 'Bom',       passos: 5500,  agua: 1.5, sono: 7.2, batimentos: 74,  spo2: 98, temperatura: 36.7 },
+  { nome: 'Excelente', passos: 10000, agua: 3.5, sono: 8.5, batimentos: 63,  spo2: 99, temperatura: 36.5 },
 ]
 
 let indicePerfil = 0
@@ -34,10 +37,13 @@ export async function buscarDadosSaude() {
   console.info(`[mockHealthApi] → perfil "${perfil.nome}" (próximo: ${PERFIS[indicePerfil].nome})`, perfil)
 
   return {
-    passos:   perfil.passos,
-    agua:     perfil.agua,
-    sono:     perfil.sono,
-    fonte:    'Google Health',
-    dataSync: new Date().toISOString(),
+    passos:      perfil.passos,
+    agua:        perfil.agua,
+    sono:        perfil.sono,
+    batimentos:  perfil.batimentos,
+    spo2:        perfil.spo2,
+    temperatura: perfil.temperatura,
+    fonte:       'Google Health',
+    dataSync:    new Date().toISOString(),
   }
 }

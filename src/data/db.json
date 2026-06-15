@@ -8,7 +8,7 @@
     { "id": 5, "username": "caua", "email": "caua@careplus.com", "first_name": "Cauã", "password": "caua2026", "pontos": 2680, "streak": 12 }
   ],
   "progressos": [
-    { "id": 1,  "usuario_id": 1, "dias_atras": 0,  "passos": 8200,  "agua": 3.1, "sono": 7.2, "fonte": "Google Health" },
+    { "id": 1,  "usuario_id": 1, "dias_atras": 0,  "passos": 8200,  "agua": 3.1, "sono": 7.2, "fonte": "Google Health", "batimentos": 72, "spo2": 98, "temperatura": 36.6 },
     { "id": 2,  "usuario_id": 1, "dias_atras": 1,  "passos": 6400,  "agua": 2.4, "sono": 6.5, "fonte": "Google Health" },
     { "id": 3,  "usuario_id": 1, "dias_atras": 2,  "passos": 9100,  "agua": 3.2, "sono": 7.8, "fonte": "Google Health" },
     { "id": 4,  "usuario_id": 1, "dias_atras": 3,  "passos": 5200,  "agua": 1.8, "sono": 6.0, "fonte": "Google Health" },
@@ -23,7 +23,7 @@
     { "id": 13, "usuario_id": 1, "dias_atras": 12, "passos": 10200, "agua": 3.4, "sono": 8.1, "fonte": "Google Health" },
     { "id": 14, "usuario_id": 1, "dias_atras": 13, "passos": 7300,  "agua": 2.8, "sono": 7.0, "fonte": "Google Health" },
 
-    { "id": 15, "usuario_id": 5, "dias_atras": 0,  "passos": 9200,  "agua": 3.3, "sono": 7.6, "fonte": "Google Health" },
+    { "id": 15, "usuario_id": 5, "dias_atras": 0,  "passos": 9200,  "agua": 3.3, "sono": 7.6, "fonte": "Google Health", "batimentos": 63, "spo2": 99, "temperatura": 36.5 },
     { "id": 16, "usuario_id": 5, "dias_atras": 1,  "passos": 8100,  "agua": 2.9, "sono": 7.1, "fonte": "Google Health" },
     { "id": 17, "usuario_id": 5, "dias_atras": 2,  "passos": 10400, "agua": 3.5, "sono": 8.0, "fonte": "Google Health" },
     { "id": 18, "usuario_id": 5, "dias_atras": 3,  "passos": 7200,  "agua": 2.6, "sono": 6.9, "fonte": "Google Health" },

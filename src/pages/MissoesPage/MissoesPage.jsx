@@ -48,7 +48,10 @@ export default function MissoesPage() {
     try {
       const { buscarDadosSaude } = await import('../../services/mockHealthApi')
       const dados = await buscarDadosSaude()
-      await api.salvarProgresso({ passos: dados.passos, agua: dados.agua, sono: dados.sono, fonte: dados.fonte })
+      await api.salvarProgresso({
+        passos: dados.passos, agua: dados.agua, sono: dados.sono, fonte: dados.fonte,
+        batimentos: dados.batimentos, spo2: dados.spo2, temperatura: dados.temperatura,
+      })
       await carregarDados()
       refreshVitals()
       mostrarMsg('success', 'Dados sincronizados com sucesso.')
